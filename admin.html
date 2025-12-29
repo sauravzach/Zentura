@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zentura Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="admin-body">
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a class="brand" href="index.html">
+        <img src="assets/zentura-logo.svg" alt="Zentura logo" />
+        <span>Zentura Admin</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html">Back to site</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <div id="loginView" class="panel-card reveal">
+        <h2>Admin login</h2>
+        <p class="trip-meta">Sign in to manage trips, images, and client inquiries.</p>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="adminUser">Username</label>
+            <input id="adminUser" type="text" required />
+          </div>
+          <div class="form-group">
+            <label for="adminPass">Password</label>
+            <input id="adminPass" type="password" required />
+          </div>
+          <button class="btn btn-primary" type="submit">Log in</button>
+          <p id="loginStatus" class="form-note"></p>
+        </form>
+        <div class="notice">Default login is stored locally. Update the password after first sign-in.</div>
+      </div>
+
+      <div id="adminView" class="admin-layout" hidden>
+        <aside class="admin-sidebar">
+          <h2>Control center</h2>
+          <p class="trip-meta">Signed in as <span id="adminName"></span></p>
+          <button id="logoutBtn" class="btn btn-ghost">Log out</button>
+          <div class="notice" style="margin-top: 18px;">Use the forms to add new trips, update pricing, or manage inquiries.</div>
+        </aside>
+
+        <div class="admin-panel">
+          <section class="panel-card" id="tripManager">
+            <h3>Trip editor</h3>
+            <form id="tripForm">
+              <input type="hidden" id="tripId" />
+              <div class="form-group">
+                <label for="tripTitle">Trip name</label>
+                <input id="tripTitle" type="text" required />
+              </div>
+              <div class="form-group">
+                <label for="tripLocation">Location</label>
+                <input id="tripLocation" type="text" required />
+              </div>
+              <div class="form-group">
+                <label for="tripDuration">Duration</label>
+                <input id="tripDuration" type="text" placeholder="4 Days / 3 Nights" required />
+              </div>
+              <div class="form-group">
+                <label for="tripPrice">Starting price (INR)</label>
+                <input id="tripPrice" type="number" min="0" step="500" required />
+              </div>
+              <div class="form-group">
+                <label for="tripImage">Image URL</label>
+                <input id="tripImage" type="text" placeholder="assets/trip-lakshadweep.svg" />
+              </div>
+              <div class="form-group">
+                <label for="tripDescription">Short description</label>
+                <textarea id="tripDescription" required></textarea>
+              </div>
+              <div class="form-group">
+                <label for="tripHighlights">Highlights (comma separated)</label>
+                <input id="tripHighlights" type="text" />
+              </div>
+              <div class="form-group">
+                <label for="tripInclusions">Inclusions (comma separated)</label>
+                <input id="tripInclusions" type="text" />
+              </div>
+              <div class="form-group">
+                <label for="tripExclusions">Exclusions (comma separated)</label>
+                <input id="tripExclusions" type="text" />
+              </div>
+              <div class="form-group">
+                <label>
+                  <input id="tripFeatured" type="checkbox" /> Feature this trip
+                </label>
+              </div>
+              <button class="btn btn-primary" type="submit">Save trip</button>
+              <button class="btn btn-ghost" id="cancelEdit" type="button">Cancel edit</button>
+              <p id="tripStatus" class="form-note"></p>
+            </form>
+          </section>
+
+          <section class="panel-card">
+            <h3>Trips overview</h3>
+            <table class="table" id="tripsTable">
+              <thead>
+                <tr>
+                  <th>Trip</th>
+                  <th>Price</th>
+                  <th>Featured</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </section>
+
+          <section class="panel-card">
+            <h3>Client inquiries</h3>
+            <table class="table" id="messagesTable">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Trip</th>
+                  <th>Contact</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </section>
+
+          <section class="panel-card">
+            <h3>Admin settings</h3>
+            <form id="adminSettings">
+              <div class="form-group">
+                <label for="newUser">New username</label>
+                <input id="newUser" type="text" placeholder="Leave blank to keep" />
+              </div>
+              <div class="form-group">
+                <label for="newPass">New password</label>
+                <input id="newPass" type="password" placeholder="Leave blank to keep" />
+              </div>
+              <button class="btn btn-ghost" type="submit">Update credentials</button>
+              <p id="settingsStatus" class="form-note"></p>
+            </form>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="data.js" defer></script>
+  <script src="admin.js" defer></script>
+</body>
+</html>

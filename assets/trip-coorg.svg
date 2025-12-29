@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" role="img" aria-label="Coorg hills">
+  <defs>
+    <linearGradient id="dawn" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFEAC9"/>
+      <stop offset="1" stop-color="#FAD0A7"/>
+    </linearGradient>
+    <linearGradient id="hill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4B9A6B"/>
+      <stop offset="1" stop-color="#2D6A4F"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="480" fill="url(#dawn)"/>
+  <circle cx="150" cy="120" r="50" fill="#FFD24A"/>
+  <path d="M0 380c120-100 220-140 320-120s160 140 260 120 120-80 220-100v200H0z" fill="url(#hill)"/>
+  <path d="M0 420c120-80 220-100 320-60s160 80 260 60 120-40 220-60v120H0z" fill="#3F7F58"/>
+  <path d="M420 260l60 120h-120z" fill="#2B5B3F" opacity="0.6"/>
+</svg>
