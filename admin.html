@@ -73,6 +73,58 @@
     [hidden] {
       display: none !important;
     }
+
+    .admin-nav-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      margin-bottom: 5px;
+      border-radius: 8px;
+      color: #4b5563;
+      text-decoration: none;
+      transition: 0.2s;
+      border: none;
+      background: none;
+      width: 100%;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.95rem;
+      text-align: left;
+    }
+
+    .admin-nav-item:hover {
+      background: #f3f4f6;
+    }
+
+    .admin-nav-item.active {
+      background: #eff6ff;
+      color: #2563eb;
+      font-weight: 600;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #111827;
+      margin: 25px 0 15px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .card-editor {
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 15px;
+    }
   </style>
 </head>
 
@@ -119,120 +171,258 @@
       <div id="adminView" class="admin-layout" hidden>
         <aside class="admin-sidebar">
           <h3 style="margin-top:0;">Control Center</h3>
-          <p style="font-size: 0.9rem; color: #666;">Signed in as:<br><strong id="adminName"
-              style="color: #1a1a1a;">-</strong></p>
+          <p style="font-size: 0.8rem; color: #666; margin-bottom: 20px;">Signed in as: <strong
+              id="adminName">-</strong></p>
+
+          <nav>
+            <button class="admin-nav-item active" data-tab="content">Site Content</button>
+            <button class="admin-nav-item" data-tab="trips">Trip Packages</button>
+            <button class="admin-nav-item" data-tab="messages">User Inquiries</button>
+          </nav>
+
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
           <button id="logoutBtn" class="btn-danger" style="width: 100%;">Sign Out</button>
         </aside>
 
         <div class="admin-panel">
-          <section class="panel-card" id="siteManager">
-            <h3 style="margin-top:0;">Site Content</h3>
-            <form id="siteForm">
-              <div class="admin-section">
-                <h4>Hero Banner</h4>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                  <div class="form-group"><label>Badge</label><input id="heroBadgeInput" type="text" /></div>
-                  <div class="form-group"><label>Headline</label><input id="heroTitleInput" type="text" /></div>
-                </div>
-                <div class="form-group" style="margin-top:15px;"><label>Description</label><textarea
-                    id="heroDescriptionInput"></textarea></div>
+          <!-- SECTION 1: SITE CONTENT -->
+          <section id="tab-content" class="tab-pane">
+            <div class="panel-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <h3 style="margin:0;">Site Editor</h3>
+                <button form="siteForm" type="submit" class="btn btn-primary">Save All Changes</button>
               </div>
 
-              <div class="admin-section" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-                <h4>Contact Details</h4>
+              <form id="siteForm">
+                <!-- HERO SECTION -->
+                <div class="section-title">Hero Banner</div>
+                <div class="input-grid">
+                  <div class="form-group"><label>Badge text</label><input id="heroBadgeInput" type="text" /></div>
+                  <div class="form-group"><label>Main Headline</label><input id="heroTitleInput" type="text" /></div>
+                </div>
+                <div class="form-group"><label>Intro Paragraph</label><textarea id="heroDescriptionInput"
+                    style="min-height: 80px;"></textarea></div>
+
+                <!-- STATS SECTION -->
+                <div class="section-title">Live Stats</div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                  <div class="card-editor">
+                    <label>Stat 1</label>
+                    <input id="stat0_val" type="text" placeholder="Value (e.g. 120+)" style="margin-bottom:8px;">
+                    <input id="stat0_label" type="text" placeholder="Label">
+                  </div>
+                  <div class="card-editor">
+                    <label>Stat 2</label>
+                    <input id="stat1_val" type="text" placeholder="Value (e.g. 4.8/5)" style="margin-bottom:8px;">
+                    <input id="stat1_label" type="text" placeholder="Label">
+                  </div>
+                  <div class="card-editor">
+                    <label>Stat 3</label>
+                    <input id="stat2_val" type="text" placeholder="Value (e.g. 24/7)" style="margin-bottom:8px;">
+                    <input id="stat2_label" type="text" placeholder="Label">
+                  </div>
+                </div>
+
+                <!-- WHY ZENTURA SECTION -->
+                <div class="section-title">Why Travelers Trust Us</div>
+                <div class="input-grid">
+                  <div class="form-group"><label>Section Title</label><input id="whyTitleInput" type="text" /></div>
+                  <div class="form-group"><label>Section Description</label><input id="whyDescriptionInput"
+                      type="text" /></div>
+                </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                  <div class="card-editor">
+                    <label>Reason 1</label>
+                    <input id="why0_title" type="text" style="margin-bottom:8px;" placeholder="Title">
+                    <textarea id="why0_text" placeholder="Description"></textarea>
+                  </div>
+                  <div class="card-editor">
+                    <label>Reason 2</label>
+                    <input id="why1_title" type="text" style="margin-bottom:8px;" placeholder="Title">
+                    <textarea id="why1_text" placeholder="Description"></textarea>
+                  </div>
+                  <div class="card-editor">
+                    <label>Reason 3</label>
+                    <input id="why2_title" type="text" style="margin-bottom:8px;" placeholder="Title">
+                    <textarea id="why2_text" placeholder="Description"></textarea>
+                  </div>
+                  <div class="card-editor">
+                    <label>Reason 4</label>
+                    <input id="why3_title" type="text" style="margin-bottom:8px;" placeholder="Title">
+                    <textarea id="why3_text" placeholder="Description"></textarea>
+                  </div>
+                </div>
+
+                <!-- TESTIMONIALS SECTION -->
+                <div class="section-title">Customer Stories</div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                  <div class="card-editor">
+                    <label>Story 1</label>
+                    <textarea id="test0_quote" style="margin-bottom:8px;" placeholder="Quote"></textarea>
+                    <input id="test0_name" type="text" placeholder="Customer Name">
+                  </div>
+                  <div class="card-editor">
+                    <label>Story 2</label>
+                    <textarea id="test1_quote" style="margin-bottom:8px;" placeholder="Quote"></textarea>
+                    <input id="test1_name" type="text" placeholder="Customer Name">
+                  </div>
+                  <div class="card-editor">
+                    <label>Story 3</label>
+                    <textarea id="test2_quote" style="margin-bottom:8px;" placeholder="Quote"></textarea>
+                    <input id="test2_name" type="text" placeholder="Customer Name">
+                  </div>
+                </div>
+
+                <!-- PROCESS SECTION -->
+                <div class="section-title">How it Works (Steps)</div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                  <div class="card-editor">
+                    <label>Step 1</label>
+                    <input id="step0_title" type="text" style="margin-bottom:8px;" placeholder="Title">
+                    <textarea id="step0_text" placeholder="Description"></textarea>
+                  </div>
+                  <div class="card-editor">
+                    <label>Step 2</label>
+                    <input id="step1_title" type="text" style="margin-bottom:8px;" placeholder="Title">
+                    <textarea id="step1_text" placeholder="Description"></textarea>
+                  </div>
+                  <div class="card-editor">
+                    <label>Step 3</label>
+                    <input id="step2_title" type="text" style="margin-bottom:8px;" placeholder="Title">
+                    <textarea id="step2_text" placeholder="Description"></textarea>
+                  </div>
+                </div>
+
+                <!-- SUPPORT SECTION -->
+                <div class="section-title">Client Support Features</div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                  <div class="card-editor">
+                    <label>Support Card 1</label>
+                    <input id="supp0_title" type="text" style="margin-bottom:8px;" placeholder="Title">
+                    <textarea id="supp0_text" placeholder="Description"></textarea>
+                  </div>
+                  <div class="card-editor">
+                    <label>Support Card 2</label>
+                    <input id="supp1_title" type="text" style="margin-bottom:8px;" placeholder="Title">
+                    <textarea id="supp1_text" placeholder="Description"></textarea>
+                  </div>
+                  <div class="card-editor">
+                    <label>Support Card 3</label>
+                    <input id="supp2_title" type="text" style="margin-bottom:8px;" placeholder="Title">
+                    <textarea id="supp2_text" placeholder="Description"></textarea>
+                  </div>
+                </div>
+
+                <!-- CONTACT / FOOTER SECTION -->
+                <div class="section-title">Business Contact</div>
+                <div class="input-grid">
                   <div class="form-group"><label>Phone Number</label><input id="contactPhoneInput" type="text" /></div>
                   <div class="form-group"><label>Email Address</label><input id="contactEmailInput" type="text" /></div>
                 </div>
-                <div class="form-group" style="margin-top:15px;"><label>Office Location</label><input
-                    id="contactOfficeInput" type="text" /></div>
-              </div>
-              <button class="btn btn-primary" type="submit" style="margin-top:20px;">Save Changes</button>
-              <p id="siteStatus" class="form-note"></p>
-            </form>
-          </section>
-
-          <section class="panel-card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h3 style="margin:0;">Active Trips</h3>
-              <div>
-                <span id="tripStatus" class="form-note" style="margin-right: 10px;"></span>
-                <button class="btn btn-primary" onclick="window.openTripEditor()">+ Add Trip</button>
-              </div>
-            </div>
-
-            <!-- Trip Editor Form (Hidden by default) -->
-            <div id="tripEditor"
-              style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px; border: 1px solid #eee;"
-              hidden>
-              <h4 style="margin-top:0;" id="tripEditorTitle">Add New Trip</h4>
-              <form id="tripForm">
-                <input type="hidden" id="tripId" />
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                  <div class="form-group"><label>Trip Title</label><input required id="tripTitle" type="text"
-                      style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
-                  <div class="form-group"><label>Location</label><input required id="tripLocation" type="text"
-                      style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
-                  <div class="form-group"><label>Duration</label><input required id="tripDuration" type="text"
-                      placeholder="e.g. 3 Days / 2 Nights"
-                      style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
-                  <div class="form-group"><label>Price (INR)</label><input required id="tripPrice" type="number"
-                      style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
+                <div class="form-group"><label>Office Location</label><input id="contactOfficeInput" type="text" />
                 </div>
 
-                <div class="form-group" style="margin-top:15px;"><label>Description</label><textarea required
-                    id="tripDesc"
-                    style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; min-height: 80px;"></textarea>
-                </div>
-
-                <div style="margin-top:15px;">
-                  <label>Trip Image</label>
-                  <input type="file" id="tripImageFn" accept="image/*" style="margin-top:5px;" />
-                  <input type="hidden" id="tripImageUrl" />
-                  <p id="imagePreview" style="font-size: 0.8rem; color: #666; margin-top: 5px;"></p>
-                </div>
-
-                <div style="margin-top:15px;">
-                  <label style="display:flex; align-items:center; gap: 10px;">
-                    <input type="checkbox" id="tripFeatured" />
-                    <strong>Mark as Featured?</strong>
-                  </label>
-                </div>
-
-                <div style="margin-top: 20px; display: flex; gap: 10px;">
-                  <button type="submit" class="btn btn-primary">Save Trip</button>
-                  <button type="button" class="btn btn-ghost" onclick="window.closeTripEditor()">Cancel</button>
+                <div style="margin-top: 30px; text-align: right; padding-top: 20px; border-top: 2px solid #eee;">
+                  <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Save All Changes</button>
+                  <p id="siteStatus" class="form-note" style="margin-top:10px;"></p>
                 </div>
               </form>
             </div>
-
-            <table class="table" id="tripsTable" style="width:100%; border-collapse: collapse; margin-top:20px;">
-              <thead>
-                <tr style="text-align:left; border-bottom: 2px solid #eee;">
-                  <th style="padding:10px;">Trip Name</th>
-                  <th>Price</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
           </section>
 
-          <section class="panel-card">
-            <h3 style="margin-top:0;">Client Inquiries</h3>
-            <table class="table" id="messagesTable" style="width:100%; border-collapse: collapse; margin-top:20px;">
-              <thead>
-                <tr style="text-align:left; border-bottom: 2px solid #eee;">
-                  <th style="padding:10px;">Client</th>
-                  <th>Trip</th>
-                  <th>Contact</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+          <!-- SECTION 2: TRIP PACKAGES -->
+          <section id="tab-trips" class="tab-pane" hidden>
+            <div class="panel-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <h3 style="margin:0;">Active Packages</h3>
+                <button class="btn btn-primary" onclick="window.openTripEditor()">+ Add New Trip</button>
+              </div>
+
+              <div id="tripEditor"
+                style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #eee;"
+                hidden>
+                <h4 style="margin-top:0;" id="tripEditorTitle">Add New Trip</h4>
+                <form id="tripForm">
+                  <input type="hidden" id="tripId" />
+                  <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group"><label>Trip Title</label><input required id="tripTitle" type="text"
+                        style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
+                    <div class="form-group"><label>Location</label><input required id="tripLocation" type="text"
+                        style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
+                    <div class="form-group"><label>Duration</label><input required id="tripDuration" type="text"
+                        placeholder="e.g. 3 Days / 2 Nights"
+                        style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
+                    <div class="form-group"><label>Price (INR)</label><input required id="tripPrice" type="number"
+                        style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
+                  </div>
+
+                  <div class="form-group" style="margin-top:15px;"><label>Description</label><textarea required
+                      id="tripDesc"
+                      style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; min-height: 80px;"></textarea>
+                  </div>
+
+                  <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top:15px;">
+                    <div class="form-group"><label>Inclusions (one per line)</label><textarea id="tripInclusions"
+                        style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; min-height: 80px;"></textarea>
+                    </div>
+                    <div class="form-group"><label>Exclusions (one per line)</label><textarea id="tripExclusions"
+                        style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; min-height: 80px;"></textarea>
+                    </div>
+                  </div>
+
+                  <div style="margin-top:15px;">
+                    <label>Trip Image</label>
+                    <input type="file" id="tripImageFn" accept="image/*" style="margin-top:5px;" />
+                    <input type="hidden" id="tripImageUrl" />
+                    <p id="imagePreview" style="font-size: 0.8rem; color: #666; margin-top: 5px;"></p>
+                  </div>
+
+                  <div style="margin-top:15px;">
+                    <label style="display:flex; align-items:center; gap: 10px;">
+                      <input type="checkbox" id="tripFeatured" />
+                      <strong>Mark as Featured?</strong>
+                    </label>
+                  </div>
+
+                  <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary">Save Trip</button>
+                    <button type="button" class="btn btn-ghost" onclick="window.closeTripEditor()">Cancel</button>
+                  </div>
+                </form>
+              </div>
+
+              <table class="table" id="tripsTable" style="width:100%; border-collapse: collapse; margin-top:20px;">
+                <thead>
+                  <tr style="text-align:left; border-bottom: 2px solid #eee;">
+                    <th style="padding:10px;">Trip Name</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+          </section>
+
+          </table>
+          </section>
+
+          <!-- SECTION 3: INQUIRIES -->
+          <section id="tab-messages" class="tab-pane" hidden>
+            <div class="panel-card">
+              <h3 style="margin-top:0;">User Inquiries</h3>
+              <table class="table" id="messagesTable" style="width:100%; border-collapse: collapse; margin-top:20px;">
+                <thead>
+                  <tr style="text-align:left; border-bottom: 2px solid #eee;">
+                    <th style="padding:10px;">Client</th>
+                    <th>Trip</th>
+                    <th>Contact</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </section>
         </div>
       </div>

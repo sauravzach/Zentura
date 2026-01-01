@@ -135,6 +135,25 @@ const setupAuthEvents = () => {
   });
 };
 
+const setupTabs = () => {
+  const tabs = document.querySelectorAll(".admin-nav-item");
+  const panes = document.querySelectorAll(".tab-pane");
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.tab;
+
+      tabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      panes.forEach(p => {
+        p.setAttribute("hidden", "true");
+        if (p.id === `tab-${target}`) p.removeAttribute("hidden");
+      });
+    });
+  });
+};
+
 /**
  * 5. DASHBOARD DATA REFRESH
  */
@@ -146,12 +165,54 @@ const refreshDashboard = async () => {
     if (content) {
       currentSiteContent = content; // Store for updates
 
-      // Populate Hero Form
+      // 1. Hero
       document.getElementById("heroBadgeInput").value = content.hero?.badge || "";
       document.getElementById("heroTitleInput").value = content.hero?.title || "";
       document.getElementById("heroDescriptionInput").value = content.hero?.description || "";
 
-      // Populate Contact Form
+      // 2. Stats
+      (content.stats || []).forEach((s, i) => {
+        if (i < 3) {
+          document.getElementById(`stat${i}_val`).value = s.value || "";
+          document.getElementById(`stat${i}_label`).value = s.label || "";
+        }
+      });
+
+      // 3. Why Zentura
+      document.getElementById("whyTitleInput").value = content.why?.title || "";
+      document.getElementById("whyDescriptionInput").value = content.why?.description || "";
+      (content.why?.items || []).forEach((item, i) => {
+        if (i < 4) {
+          document.getElementById(`why${i}_title`).value = item.title || "";
+          document.getElementById(`why${i}_text`).value = item.text || "";
+        }
+      });
+
+      // 4. Testimonials
+      (content.testimonials?.items || []).forEach((item, i) => {
+        if (i < 3) {
+          document.getElementById(`test${i}_quote`).value = item.quote || "";
+          document.getElementById(`test${i}_name`).value = item.name || "";
+        }
+      });
+
+      // 5. Steps (Process)
+      (content.steps?.items || []).forEach((item, i) => {
+        if (i < 3) {
+          document.getElementById(`step${i}_title`).value = item.title || "";
+          document.getElementById(`step${i}_text`).value = item.text || "";
+        }
+      });
+
+      // 6. Support
+      (content.support?.items || []).forEach((item, i) => {
+        if (i < 3) {
+          document.getElementById(`supp${i}_title`).value = item.title || "";
+          document.getElementById(`supp${i}_text`).value = item.text || "";
+        }
+      });
+
+      // 7. Contact
       document.getElementById("contactPhoneInput").value = content.contact?.phone || "";
       document.getElementById("contactEmailInput").value = content.contact?.email || "";
       document.getElementById("contactOfficeInput").value = content.contact?.office || "";
@@ -172,31 +233,69 @@ const setupDashboardEvents = () => {
       const statusMsg = document.getElementById("siteStatus");
       statusMsg.textContent = "Saving changes...";
       statusMsg.style.color = "blue";
-
-      // Update local state with form values
-      if (!currentSiteContent.hero) currentSiteContent.hero = {};
-      currentSiteContent.hero.badge = document.getElementById("heroBadgeInput").value;
-      currentSiteContent.hero.title = document.getElementById("heroTitleInput").value;
-      currentSiteContent.hero.description = document.getElementById("heroDescriptionInput").value;
-
-      if (!currentSiteContent.contact) currentSiteContent.contact = {};
-      currentSiteContent.contact.phone = document.getElementById("contactPhoneInput").value;
-      currentSiteContent.contact.email = document.getElementById("contactEmailInput").value;
-      currentSiteContent.contact.office = document.getElementById("contactOfficeInput").value;
-
-      statusMsg.textContent = "Saving changes...";
-      statusMsg.style.color = "blue";
       console.log("Saving site content...", currentSiteContent);
 
+      // Create a fresh clone/update of the content object based on ALL inputs
+      const updated = JSON.parse(JSON.stringify(currentSiteContent));
+
+      // Hero
+      if (!updated.hero) updated.hero = {};
+      updated.hero.badge = document.getElementById("heroBadgeInput").value;
+      updated.hero.title = document.getElementById("heroTitleInput").value;
+      updated.hero.description = document.getElementById("heroDescriptionInput").value;
+
+      // Stats
+      updated.stats = [0, 1, 2].map(i => ({
+        value: document.getElementById(`stat${i}_val`).value,
+        label: document.getElementById(`stat${i}_label`).value
+      }));
+
+      // Why Us
+      if (!updated.why) updated.why = { title: "", description: "", items: [] };
+      updated.why.title = document.getElementById("whyTitleInput").value;
+      updated.why.description = document.getElementById("whyDescriptionInput").value;
+      updated.why.items = [0, 1, 2, 3].map(i => ({
+        title: document.getElementById(`why${i}_title`).value,
+        text: document.getElementById(`why${i}_text`).value
+      }));
+
+      // Testimonials
+      if (!updated.testimonials) updated.testimonials = { title: "", description: "", items: [] };
+      updated.testimonials.items = [0, 1, 2].map(i => ({
+        quote: document.getElementById(`test${i}_quote`).value,
+        name: document.getElementById(`test${i}_name`).value
+      }));
+
+      // Steps
+      if (!updated.steps) updated.steps = { title: "", description: "", items: [] };
+      updated.steps.items = [0, 1, 2].map(i => ({
+        label: `Step 0${i + 1}`,
+        title: document.getElementById(`step${i}_title`).value,
+        text: document.getElementById(`step${i}_text`).value
+      }));
+
+      // Support
+      if (!updated.support) updated.support = { title: "", description: "", items: [] };
+      updated.support.items = [0, 1, 2].map(i => ({
+        title: document.getElementById(`supp${i}_title`).value,
+        text: document.getElementById(`supp${i}_text`).value
+      }));
+
+      // Contact
+      if (!updated.contact) updated.contact = {};
+      updated.contact.phone = document.getElementById("contactPhoneInput").value;
+      updated.contact.email = document.getElementById("contactEmailInput").value;
+      updated.contact.office = document.getElementById("contactOfficeInput").value;
+
       try {
-        const { error } = await ZenturaData.saveSiteContent(currentSiteContent);
+        const { error } = await ZenturaData.saveSiteContent(updated);
         if (error) throw error;
 
         console.log("Save successful!");
+        currentSiteContent = updated; // Update local cache
         statusMsg.textContent = "Changes saved successfully!";
         statusMsg.style.color = "green";
 
-        // Clear success message after 3 seconds
         setTimeout(() => { statusMsg.textContent = ""; }, 3000);
       } catch (err) {
         console.error("Save failed:", err);
@@ -259,9 +358,9 @@ const setupTripEvents = () => {
         description: document.getElementById("tripDesc").value,
         image: imageUrl,
         featured: document.getElementById("tripFeatured").checked,
-        highlights: [], // Simplified for now, can extend later
-        inclusions: [],
-        exclusions: []
+        highlights: [], // Simplified for now
+        inclusions: document.getElementById("tripInclusions").value.split("\n").map(s => s.trim()).filter(Boolean),
+        exclusions: document.getElementById("tripExclusions").value.split("\n").map(s => s.trim()).filter(Boolean)
       };
 
       let result;
@@ -308,6 +407,8 @@ window.openTripEditor = (tripId = null) => {
     document.getElementById("tripDuration").value = trip.duration;
     document.getElementById("tripPrice").value = trip.price;
     document.getElementById("tripDesc").value = trip.description;
+    document.getElementById("tripInclusions").value = (trip.inclusions || []).join("\n");
+    document.getElementById("tripExclusions").value = (trip.exclusions || []).join("\n");
     document.getElementById("tripImageUrl").value = trip.image || "";
     document.getElementById("tripFeatured").checked = trip.featured;
 
@@ -317,6 +418,8 @@ window.openTripEditor = (tripId = null) => {
     title.textContent = "Add New Trip";
     document.getElementById("tripId").value = "";
     document.getElementById("tripImageUrl").value = "";
+    document.getElementById("tripInclusions").value = "";
+    document.getElementById("tripExclusions").value = "";
     document.getElementById("imagePreview").textContent = "";
   }
 };
@@ -361,6 +464,7 @@ window.toggleMsg = async (id, status) => {
 document.addEventListener("DOMContentLoaded", () => {
   initAuthObserver();
   setupAuthEvents();
+  setupTabs();
   setupDashboardEvents();
   setupTripEvents();
 });
