@@ -37,25 +37,38 @@ const initAuthObserver = () => {
   ZenturaData.onAuthChange(async (event, session) => {
     console.log(`[Auth Event]: ${event}`);
 
+    // Handle initial session quickly to update UI
+    if (event === "INITIAL_SESSION" && session?.user) {
+      const userLabel = session.user.email.split("@")[0];
+      updateAdminUI(true, userLabel);
+      refreshDashboard(); // Load data immediately if already logged in
+      return; // Exit early for initial session, full check will happen on subsequent events
+    }
+
     if (session?.user) {
       try {
-        // Double check admin table for authorization
-        const { isAdmin, error } = await ZenturaData.checkAdminAccess(
-          session.user.id
+        // Safety timeout for admin check
+        const checkPromise = ZenturaData.checkAdminAccess(session.user.id);
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Admin check timed out. Check your connection.")), 6000)
         );
 
-        if (error || !isAdmin) throw new Error("Unauthorized");
+        const { isAdmin, error } = await Promise.race([checkPromise, timeoutPromise]);
 
+        if (error) throw error;
+        if (!isAdmin) throw new Error("Unauthorized: User not in admin_users table.");
+
+        console.log("Admin authorized:", session.user.email);
         const userLabel = session.user.email.split("@")[0];
         updateAdminUI(true, userLabel);
 
-        // Only load data AFTER auth is confirmed
         refreshDashboard();
 
       } catch (err) {
-        console.error("Access blocked:", err);
-        document.getElementById("loginStatus").textContent = "Access denied. Admins only.";
-        executeSignOut(); // Nuke session if unauthorized
+        console.error("Auth Error:", err);
+        const status = document.getElementById("loginStatus");
+        if (status) status.textContent = `Error: ${err.message}`;
+        executeSignOut();
       }
     } else {
       updateAdminUI(false);
@@ -171,9 +184,15 @@ const setupDashboardEvents = () => {
       currentSiteContent.contact.email = document.getElementById("contactEmailInput").value;
       currentSiteContent.contact.office = document.getElementById("contactOfficeInput").value;
 
+      statusMsg.textContent = "Saving changes...";
+      statusMsg.style.color = "blue";
+      console.log("Saving site content...", currentSiteContent);
+
       try {
         const { error } = await ZenturaData.saveSiteContent(currentSiteContent);
         if (error) throw error;
+
+        console.log("Save successful!");
         statusMsg.textContent = "Changes saved successfully!";
         statusMsg.style.color = "green";
 
@@ -181,7 +200,7 @@ const setupDashboardEvents = () => {
         setTimeout(() => { statusMsg.textContent = ""; }, 3000);
       } catch (err) {
         console.error("Save failed:", err);
-        statusMsg.textContent = "Failed to save changes. Try again.";
+        statusMsg.textContent = `Save Failed: ${err.message}`;
         statusMsg.style.color = "red";
       }
     });
