@@ -23,6 +23,12 @@ const DEFAULT_TRIPS = [
     exclusions: ["Flight ticket", "Scuba diving"],
     image: "assets/trip-lakshadweep.svg",
     featured: true,
+    itinerary: [
+      { day: "Day 01", title: "Arrival & Lagoon Magic", text: "Airport pickup, transfer to resort, and an evening walk along the calm lagoon." },
+      { day: "Day 02", title: "Island Hopping", text: "A guided boat tour to nearby uninhabited islands for snorkeling and turtle-watching." },
+      { day: "Day 03", title: "Water Sports & Sunset", text: "Morning scuba session followed by a traditional sunset cruise with local snacks." },
+      { day: "Day 04", title: "Farewell", text: "Final breakfast, souvenir shopping, and transfer back to the airport." }
+    ]
   },
   {
     id: "coorg-escape-3d2n",
@@ -281,6 +287,7 @@ const createTrip = async (trip) => {
     exclusions: trip.exclusions,
     image_url: trip.image,
     featured: trip.featured,
+    itinerary: trip.itinerary || [],
   });
   return { error };
 };
@@ -303,6 +310,7 @@ const updateTrip = async (trip) => {
       exclusions: trip.exclusions,
       image_url: trip.image,
       featured: trip.featured,
+      itinerary: trip.itinerary || [],
       updated_at: new Date().toISOString(),
     })
     .eq("id", trip.id);
@@ -340,6 +348,7 @@ const seedTripsIfEmpty = async () => {
     exclusions: trip.exclusions,
     image_url: trip.image,
     featured: trip.featured,
+    itinerary: trip.itinerary || [],
   }));
   const insertResult = await supabaseClient.from("trips").insert(payload);
   return { error: insertResult.error || null };
@@ -403,6 +412,29 @@ const uploadImage = async (file, prefix = "trips") => {
   return { url: data.publicUrl, error: null };
 };
 
+const listImages = async (folder = "trips") => {
+  if (!supabaseClient) {
+    return { images: [], error: new Error("Supabase not configured") };
+  }
+  const { data, error } = await supabaseClient.storage
+    .from(storageBucket)
+    .list(folder, {
+      limit: 100,
+      offset: 0,
+      sortBy: { column: "created_at", order: "desc" },
+    });
+
+  if (error) return { images: [], error };
+
+  const images = data.map((file) => ({
+    name: file.name,
+    url: supabaseClient.storage.from(storageBucket).getPublicUrl(`${folder}/${file.name}`).data.publicUrl,
+    created_at: file.created_at
+  }));
+
+  return { images, error: null };
+};
+
 const signIn = async (email, password) => {
   if (!supabaseClient) {
     return { error: new Error("Supabase not configured") };
@@ -428,7 +460,7 @@ const checkAdminAccess = async (userId) => {
   if (error) {
     return { isAdmin: false, error };
   }
-  
+
   // If data exists, they are an admin
   return { isAdmin: !!data, error: null };
 };
@@ -461,7 +493,7 @@ const getSession = async () => {
 
 const onAuthChange = (callback) => {
   if (!supabaseClient) {
-    return () => {};
+    return () => { };
   }
   const { data } = supabaseClient.auth.onAuthStateChange(callback);
   return () => data.subscription.unsubscribe();
@@ -484,6 +516,7 @@ window.ZenturaData = {
   addMessage,
   updateMessageStatus,
   uploadImage,
+  listImages,
   signIn,
   signOut,
   clearAuthSession,

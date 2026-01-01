@@ -8,6 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="icon" type="image/svg+xml" href="assets/zentura-logo.svg" />
+  <link rel="manifest" href="manifest.json" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js');
+      });
+    }
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <style>
@@ -177,8 +185,9 @@
 
           <nav>
             <button class="admin-nav-item active" data-tab="content">Site Content</button>
-            <button class="admin-nav-item" data-tab="trips">Trip Packages</button>
-            <button class="admin-nav-item" data-tab="messages">User Inquiries</button>
+            <div class="admin-nav-item" data-tab="trips">📦 Trip Packages</div>
+            <div class="admin-nav-item" data-tab="library">🖼️ Image Library</div>
+            <div class="admin-nav-item" data-tab="messages">📬 User Inquiries</div>
           </nav>
 
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
@@ -349,47 +358,81 @@
                 <h4 style="margin-top:0;" id="tripEditorTitle">Add New Trip</h4>
                 <form id="tripForm">
                   <input type="hidden" id="tripId" />
-                  <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group"><label>Trip Title</label><input required id="tripTitle" type="text"
-                        style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
-                    <div class="form-group"><label>Location</label><input required id="tripLocation" type="text"
-                        style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
-                    <div class="form-group"><label>Duration</label><input required id="tripDuration" type="text"
-                        placeholder="e.g. 3 Days / 2 Nights"
-                        style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
-                    <div class="form-group"><label>Price (INR)</label><input required id="tripPrice" type="number"
-                        style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
+
+                  <!-- EDITOR TABS -->
+                  <div class="editor-tabs"
+                    style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid #ddd;">
+                    <button type="button" class="btn btn-ghost active" onclick="window.switchEditorTab('basics')"
+                      id="tabBtn-basics">Basics</button>
+                    <button type="button" class="btn btn-ghost" onclick="window.switchEditorTab('itinerary')"
+                      id="tabBtn-itinerary">Itinerary</button>
+                    <button type="button" class="btn btn-ghost" onclick="window.switchEditorTab('details')"
+                      id="tabBtn-details">Details & Media</button>
                   </div>
 
-                  <div class="form-group" style="margin-top:15px;"><label>Description</label><textarea required
-                      id="tripDesc"
-                      style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; min-height: 80px;"></textarea>
-                  </div>
-
-                  <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top:15px;">
-                    <div class="form-group"><label>Inclusions (one per line)</label><textarea id="tripInclusions"
+                  <!-- TAB 1: BASICS -->
+                  <div id="editor-tab-basics" class="editor-pane">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                      <div class="form-group"><label>Trip Title</label><input required id="tripTitle" type="text"
+                          style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
+                      <div class="form-group"><label>Location</label><input required id="tripLocation" type="text"
+                          style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
+                      <div class="form-group"><label>Duration</label><input required id="tripDuration" type="text"
+                          placeholder="e.g. 3 Days / 2 Nights"
+                          style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
+                      <div class="form-group"><label>Price (INR)</label><input required id="tripPrice" type="number"
+                          style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
+                    </div>
+                    <div class="form-group" style="margin-top:15px;"><label>Description</label><textarea required
+                        id="tripDesc"
                         style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; min-height: 80px;"></textarea>
                     </div>
-                    <div class="form-group"><label>Exclusions (one per line)</label><textarea id="tripExclusions"
-                        style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; min-height: 80px;"></textarea>
+                    <div style="margin-top:15px;">
+                      <label style="display:flex; align-items:center; gap: 10px;">
+                        <input type="checkbox" id="tripFeatured" />
+                        <strong>Mark as Featured?</strong>
+                      </label>
                     </div>
                   </div>
 
-                  <div style="margin-top:15px;">
-                    <label>Trip Image</label>
-                    <input type="file" id="tripImageFn" accept="image/*" style="margin-top:5px;" />
-                    <input type="hidden" id="tripImageUrl" />
-                    <p id="imagePreview" style="font-size: 0.8rem; color: #666; margin-top: 5px;"></p>
+                  <!-- TAB 2: ITINERARY -->
+                  <div id="editor-tab-itinerary" class="editor-pane" hidden>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                      <label>Daily Timeline</label>
+                      <button type="button" class="btn btn-ghost btn-small" onclick="window.addItineraryDay()">+ Add
+                        Day</button>
+                    </div>
+                    <div id="itineraryContainer"
+                      style="margin-top:10px; display:flex; flex-direction:column; gap:10px;">
+                      <!-- Days added here -->
+                    </div>
                   </div>
 
-                  <div style="margin-top:15px;">
-                    <label style="display:flex; align-items:center; gap: 10px;">
-                      <input type="checkbox" id="tripFeatured" />
-                      <strong>Mark as Featured?</strong>
-                    </label>
+                  <!-- TAB 3: DETAILS -->
+                  <div id="editor-tab-details" class="editor-pane" hidden>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                      <div class="form-group"><label>Inclusions (one per line)</label><textarea id="tripInclusions"
+                          style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; min-height: 120px;"></textarea>
+                      </div>
+                      <div class="form-group"><label>Exclusions (one per line)</label><textarea id="tripExclusions"
+                          style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; min-height: 120px;"></textarea>
+                      </div>
+                    </div>
+                    <div class="form-group" style="margin-top:15px;">
+                      <label>Trip Image</label>
+                      <div style="display:flex; gap:10px; align-items:center;">
+                        <input type="file" id="tripImageFn" accept="image/*" />
+                        <span>or</span>
+                        <button type="button" class="btn btn-ghost btn-small"
+                          onclick="window.openImageLibrary('trip')">Choose from Library</button>
+                      </div>
+                      <input type="hidden" id="tripImageUrl" />
+                      <p id="imagePreview" class="form-note"></p>
+                    </div>
                   </div>
 
-                  <div style="margin-top: 20px; display: flex; gap: 10px;">
+                  <div
+                    style="margin-top: 20px; display: flex; gap: 10px; border-top: 1px solid #eee; padding-top: 20px;">
                     <button type="submit" class="btn btn-primary">Save Trip</button>
                     <button type="button" class="btn btn-ghost" onclick="window.closeTripEditor()">Cancel</button>
                   </div>
@@ -409,9 +452,6 @@
               </table>
           </section>
 
-          </table>
-          </section>
-
           <!-- SECTION 3: INQUIRIES -->
           <section id="tab-messages" class="tab-pane" hidden>
             <div class="panel-card">
@@ -429,6 +469,21 @@
                 </thead>
                 <tbody></tbody>
               </table>
+            </div>
+          </section>
+
+          <!-- SECTION 4: LIBRARY -->
+          <section id="tab-library" class="tab-pane" hidden>
+            <div class="panel-card">
+              <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:20px;">
+                <h3 style="margin-top:0;">Image Library</h3>
+                <p class="form-note">Select an image to use it in your trip package.</p>
+              </div>
+              <div id="libraryGrid"
+                style="display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:15px;">
+                <!-- Images injected here -->
+                <p>Loading library...</p>
+              </div>
             </div>
           </section>
         </div>

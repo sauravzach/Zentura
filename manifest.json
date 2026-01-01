@@ -1,0 +1,17 @@
+{
+  "name": "Zentura Travel",
+  "short_name": "Zentura",
+  "description": "Crafted trips with comfort and expert local guidance.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#FFF3E6",
+  "theme_color": "#1F6E6A",
+  "icons": [
+    {
+      "src": "assets/zentura-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

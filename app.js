@@ -67,7 +67,7 @@ const renderTrips = (trips, content, observe) => {
   grid.innerHTML = "";
   const cardCta = content?.packages?.cardCta || "Book now";
 
-  const cards = trips.map((trip) => {
+  const cards = trips.map((trip, i) => {
     const card = document.createElement("article");
     card.className = "trip-card reveal";
 
@@ -89,6 +89,57 @@ const renderTrips = (trips, content, observe) => {
       ? `<span class="label">Featured</span>`
       : `<span class="label">Comfort pick</span>`;
 
+    const hasItinerary = trip.itinerary && trip.itinerary.length > 0;
+
+    // TAB: OVERVIEW (Inclusions/Exclusions)
+    const overviewContent = `
+      <div class="card-tab-content active" id="tab-overview-${i}">
+        <div>
+          <strong>Top inclusions</strong>
+          <ul class="list">${inclusions}</ul>
+        </div>
+        <div>
+          <strong>Exclusions</strong>
+          <ul class="list">${exclusions}</ul>
+        </div>
+      </div>
+    `;
+
+    // TAB: ITINERARY
+    const itineraryContent = hasItinerary
+      ? `
+        <div class="card-tab-content" id="tab-itinerary-${i}" style="display:none;">
+          <div class="timeline">
+            ${trip.itinerary.map((day, dI) => `
+              <div class="timeline-item ${dI === 0 ? 'is-active' : ''}">
+                <div class="timeline-header" onclick="this.parentElement.classList.toggle('is-active')">
+                  <span class="day-label">${escapeHTML(day.day)}</span>
+                  <span class="day-title">${escapeHTML(day.title)}</span>
+                </div>
+                <div class="timeline-content">
+                  <p class="trip-meta">${escapeHTML(day.text)}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `
+      : `
+        <div class="card-tab-content" id="tab-itinerary-${i}" style="display:none;">
+          <div style="padding: 20px; text-align: center; color: #666; font-style: italic;">
+            Detailed itinerary coming soon.
+          </div>
+        </div>
+      `;
+
+    // TAB NAVIGATION
+    const tabNav = `
+      <div class="card-tabs">
+        <button class="card-tab-btn active" onclick="switchCardTab(${i}, 'overview')">Overview</button>
+        <button class="card-tab-btn" onclick="switchCardTab(${i}, 'itinerary')">Itinerary</button>
+      </div>
+    `;
+
     card.innerHTML = `
       ${imageMarkup}
       <div class="trip-body">
@@ -100,14 +151,11 @@ const renderTrips = (trips, content, observe) => {
           <span class="trip-price">${ZenturaData.formatPrice(trip.price, trip.currency)}</span>
         </div>
         <p class="trip-meta">${escapeHTML(trip.description)}</p>
-        <div>
-          <strong>Top inclusions</strong>
-          <ul class="list">${inclusions}</ul>
-        </div>
-        <div>
-          <strong>Exclusions</strong>
-          <ul class="list">${exclusions}</ul>
-        </div>
+        
+        ${tabNav}
+        ${overviewContent}
+        ${itineraryContent}
+
         <div class="trip-actions">
           ${featuredLabel}
           <button class="btn btn-primary" data-trip="${escapeHTML(trip.title)}">${escapeHTML(cardCta)}</button>
@@ -258,7 +306,7 @@ const renderFeaturedSlider = (trips, content) => {
 
   displayTrips.forEach((trip, i) => {
     const slide = document.createElement("div");
-    slide.className = `hero-card fade-in ${i === 0 ? "active" : ""}`;
+    slide.className = `hero-card fade-in ${i === 0 ? "active" : ""} `;
     slide.style.display = i === 0 ? "block" : "none";
     slide.style.position = "relative";
     slide.style.left = "0";
@@ -279,7 +327,7 @@ const renderFeaturedSlider = (trips, content) => {
     container.appendChild(slide);
 
     const dot = document.createElement("div");
-    dot.className = `slider-dot ${i === 0 ? "is-active" : ""}`;
+    dot.className = `slider-dot ${i === 0 ? "is-active" : ""} `;
     dot.addEventListener("click", () => goToSlide(i));
     dotsContainer.appendChild(dot);
   });
@@ -363,6 +411,25 @@ const setupNavToggle = () => {
       navLinks.classList.remove("is-open");
       toggle.setAttribute("aria-expanded", "false");
     });
+  });
+};
+
+window.switchCardTab = (cardIndex, tabName) => {
+  const card = document.querySelectorAll(".trip-card")[cardIndex];
+  if (!card) return;
+
+  // Buttons
+  card.querySelectorAll(".card-tab-btn").forEach(btn => {
+    btn.classList.remove("active");
+    if (btn.innerText.toLowerCase().includes(tabName)) btn.classList.add("active");
+  });
+
+  // Content
+  card.querySelectorAll(".card-tab-content").forEach(content => {
+    content.style.display = "none";
+    if (content.id === `tab-${tabName}-${cardIndex}`) {
+      content.style.display = "block";
+    }
   });
 };
 

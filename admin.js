@@ -148,7 +148,10 @@ const setupTabs = () => {
 
       panes.forEach(p => {
         p.setAttribute("hidden", "true");
-        if (p.id === `tab-${target}`) p.removeAttribute("hidden");
+        if (p.id === `tab-${target}`) {
+          p.removeAttribute("hidden");
+          if (target === "library") renderLibrary();
+        }
       });
     });
   });
@@ -360,7 +363,12 @@ const setupTripEvents = () => {
         description: document.getElementById("tripDesc").value,
         image: imageUrl,
         featured: document.getElementById("tripFeatured").checked,
-        highlights: [], // Simplified for now
+        highlights: [],
+        itinerary: Array.from(document.querySelectorAll(".itinerary-day")).map(div => ({
+          day: div.querySelector(".itinerary-label").value,
+          title: div.querySelector(".itinerary-title").value,
+          text: div.querySelector(".itinerary-text").value
+        })),
         inclusions: document.getElementById("tripInclusions").value.split("\n").map(s => s.trim()).filter(Boolean),
         exclusions: document.getElementById("tripExclusions").value.split("\n").map(s => s.trim()).filter(Boolean)
       };
@@ -414,6 +422,10 @@ window.openTripEditor = (tripId = null) => {
     document.getElementById("tripImageUrl").value = trip.image || "";
     document.getElementById("tripFeatured").checked = trip.featured;
 
+    const container = document.getElementById("itineraryContainer");
+    container.innerHTML = "";
+    (trip.itinerary || []).forEach(day => window.addItineraryDay(day));
+
     const preview = document.getElementById("imagePreview");
     preview.textContent = trip.image ? "Current image set. Upload new to replace." : "No image set.";
   } else {
@@ -422,12 +434,49 @@ window.openTripEditor = (tripId = null) => {
     document.getElementById("tripImageUrl").value = "";
     document.getElementById("tripInclusions").value = "";
     document.getElementById("tripExclusions").value = "";
+    document.getElementById("itineraryContainer").innerHTML = "";
     document.getElementById("imagePreview").textContent = "";
+    document.getElementById("tripImageFn").value = "";
+  }
+
+  // Reset to basics tab
+  if (window.switchEditorTab) {
+    window.switchEditorTab('basics');
   }
 };
 
 window.closeTripEditor = () => {
   document.getElementById("tripEditor").setAttribute("hidden", "true");
+};
+
+window.switchEditorTab = (tabName) => {
+  // Update buttons
+  document.querySelectorAll(".editor-tabs .btn").forEach(btn => {
+    btn.classList.remove("active");
+    if (btn.id === `tabBtn-${tabName}`) btn.classList.add("active");
+  });
+
+  // Update panes
+  document.querySelectorAll(".editor-pane").forEach(pane => {
+    pane.setAttribute("hidden", "true");
+    if (pane.id === `editor-tab-${tabName}`) pane.removeAttribute("hidden");
+  });
+};
+
+window.addItineraryDay = (data = { day: "", title: "", text: "" }) => {
+  const container = document.getElementById("itineraryContainer");
+  const div = document.createElement("div");
+  div.className = "itinerary-day";
+  div.style = "border: 1px solid #ddd; padding: 10px; border-radius: 8px; background: #fafafa; position: relative;";
+  div.innerHTML = `
+    <button type="button" style="position:absolute; top:5px; right:5px; border:none; background:none; cursor:pointer; color:red;" onclick="this.parentElement.remove()">×</button>
+    <div style="display:grid; grid-template-columns: 80px 1fr; gap:10px; margin-bottom:5px;">
+      <input class="itinerary-label" type="text" placeholder="Day 01" value="${data.day}" style="padding:4px; border-radius:4px; border:1px solid #ccc;" />
+      <input class="itinerary-title" type="text" placeholder="Day Title" value="${data.title}" style="padding:4px; border-radius:4px; border:1px solid #ccc;" />
+    </div>
+    <textarea class="itinerary-text" placeholder="Activities for the day..." style="width:100%; min-height:50px; padding:4px; border-radius:4px; border:1px solid #ccc;">${data.text}</textarea>
+  `;
+  container.appendChild(div);
 };
 
 const renderMessages = async () => {
@@ -469,6 +518,54 @@ window.toggleMsg = async (id, status) => {
   const next = status === 'resolved' ? 'new' : 'resolved';
   await ZenturaData.updateMessageStatus(id, next);
   renderMessages();
+};
+
+const renderLibrary = async () => {
+  const grid = document.getElementById("libraryGrid");
+  grid.innerHTML = "<p>Loading images...</p>";
+
+  const { images, error } = await ZenturaData.listImages();
+  if (error) {
+    grid.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+    return;
+  }
+
+  if (images.length === 0) {
+    grid.innerHTML = "<p>No images found in library. Upload some in the Trip Editor first!</p>";
+    return;
+  }
+
+  grid.innerHTML = images.map(img => `
+    <div class="library-item" style="border:1px solid #eee; border-radius:8px; overflow:hidden; cursor:pointer; background:white; transition:0.2s;" onclick="window.selectLibraryImage('${img.url}')" onmouseover="this.style.borderColor='var(--orange-700)'" onmouseout="this.style.borderColor='#eee'">
+      <img src="${img.url}" style="width:100%; height:100px; object-fit:cover;" />
+      <div style="padding:8px; font-size:0.75rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center;">${img.name}</div>
+    </div>
+  `).join('');
+};
+
+let libraryCallback = null;
+
+window.openImageLibrary = (context = 'trip') => {
+  // Switch to library tab
+  const libTab = document.querySelector('[data-tab="library"]');
+  if (libTab) libTab.click();
+  libraryCallback = context;
+};
+
+window.selectLibraryImage = (url) => {
+  if (libraryCallback === 'trip') {
+    // Switch back to trips tab
+    const tripTab = document.querySelector('[data-tab="trips"]');
+    if (tripTab) tripTab.click();
+
+    // Set the image URL and show preview
+    document.getElementById("tripImageUrl").value = url;
+    document.getElementById("imagePreview").textContent = "Selected from library: " + url.split('/').pop();
+
+    // Clear file input
+    document.getElementById("tripImageFn").value = "";
+  }
+  libraryCallback = null;
 };
 
 /**
