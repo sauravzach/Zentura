@@ -32,25 +32,25 @@
     <section class="hero">
       <div class="container hero-grid">
         <div class="reveal">
-          <span class="badge">Comfort-first travel planning</span>
-          <h1>Travel in comfort, guided by the people who know each destination best.</h1>
-          <p>Zentura creates stress-free trips for new and returning clients. We handpick stays, arrange permits, and keep your itinerary seamless from arrival to departure.</p>
+          <span class="badge" id="heroBadge">Comfort-first travel planning</span>
+          <h1 id="heroTitle">Travel in comfort, guided by the people who know each destination best.</h1>
+          <p id="heroDescription">Zentura creates stress-free trips for new and returning clients. We handpick stays, arrange permits, and keep your itinerary seamless from arrival to departure.</p>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="#contact">Plan my trip</a>
-            <a class="btn btn-ghost" href="#packages">View packages</a>
+            <a class="btn btn-primary" id="heroPrimaryCta" href="#contact">Plan my trip</a>
+            <a class="btn btn-ghost" id="heroSecondaryCta" href="#packages">View packages</a>
           </div>
           <div class="stats">
             <div class="stat">
-              <h3>120+</h3>
-              <span>Curated departures</span>
+              <h3 id="statValue0">120+</h3>
+              <span id="statLabel0">Curated departures</span>
             </div>
             <div class="stat">
-              <h3>4.8/5</h3>
-              <span>Traveler satisfaction</span>
+              <h3 id="statValue1">4.8/5</h3>
+              <span id="statLabel1">Traveler satisfaction</span>
             </div>
             <div class="stat">
-              <h3>24/7</h3>
-              <span>Trip support</span>
+              <h3 id="statValue2">24/7</h3>
+              <span id="statLabel2">Trip support</span>
             </div>
           </div>
         </div>
@@ -69,12 +69,12 @@
             <circle cx="120" cy="210" r="24" fill="#FFD24A" />
           </svg>
           <div class="hero-card fade-in">
-            <span class="badge">Featured this month</span>
-            <h3>Lakshadweep escape</h3>
-            <p class="trip-meta">4 Days / 3 Nights | Starting at INR 16,000</p>
+            <span class="badge" id="featuredBadge">Featured this month</span>
+            <h3 id="featuredTitle">Lakshadweep escape</h3>
+            <p id="featuredMeta" class="trip-meta">4 Days / 3 Nights | Starting at INR 16,000</p>
             <div class="trip-actions">
-              <span class="label">All permits handled</span>
-              <a class="btn btn-primary" href="#contact">Reserve now</a>
+              <span class="label" id="featuredTag">All permits handled</span>
+              <a class="btn btn-primary" id="featuredCta" href="#contact">Reserve now</a>
             </div>
           </div>
         </div>
@@ -85,10 +85,10 @@
       <div class="container">
         <div class="section-head reveal">
           <div>
-            <h2>Signature travel packages</h2>
-            <p>Choose a ready-to-go itinerary or let us customize every detail. All packages are designed for comfort, smooth transfers, and trusted local guides.</p>
+            <h2 id="packagesTitle">Signature travel packages</h2>
+            <p id="packagesDescription">Choose a ready-to-go itinerary or let us customize every detail. All packages are designed for comfort, smooth transfers, and trusted local guides.</p>
           </div>
-          <a class="btn btn-ghost" href="#contact">Request a custom quote</a>
+          <a class="btn btn-ghost" id="packagesCta" href="#contact">Request a custom quote</a>
         </div>
         <div id="tripGrid" class="trip-grid"></div>
       </div>
@@ -98,28 +98,11 @@
       <div class="container">
         <div class="section-head reveal">
           <div>
-            <h2>Why travelers trust Zentura</h2>
-            <p>We handle the hard parts so you can relax. Dedicated support keeps new clients confident and repeat clients delighted.</p>
+            <h2 id="whyTitle">Why travelers trust Zentura</h2>
+            <p id="whyDescription">We handle the hard parts so you can relax. Dedicated support keeps new clients confident and repeat clients delighted.</p>
           </div>
         </div>
-        <div class="feature-grid">
-          <div class="feature-card reveal">
-            <h3>Permit + paperwork cleared</h3>
-            <p class="trip-meta">Entry permits, police clearance certificates, and destination approvals coordinated in advance.</p>
-          </div>
-          <div class="feature-card reveal">
-            <h3>Comfort-first stays</h3>
-            <p class="trip-meta">Verified hotels, daily breakfast, and local hosts that know how to take care of you.</p>
-          </div>
-          <div class="feature-card reveal">
-            <h3>On-trip concierge</h3>
-            <p class="trip-meta">From airport pickup to last-day checkout, we stay in touch with you and your family.</p>
-          </div>
-          <div class="feature-card reveal">
-            <h3>Local experience</h3>
-            <p class="trip-meta">Trusted guides, community-driven activities, and safe adventure add-ons.</p>
-          </div>
-        </div>
+        <div class="feature-grid" id="whyList"></div>
       </div>
     </section>
 
@@ -127,27 +110,11 @@
       <div class="container">
         <div class="section-head reveal">
           <div>
-            <h2>How it works</h2>
-            <p>We keep things simple for you and transparent for your team.</p>
+            <h2 id="stepsTitle">How it works</h2>
+            <p id="stepsDescription">We keep things simple for you and transparent for your team.</p>
           </div>
         </div>
-        <div class="steps">
-          <div class="step reveal">
-            <span>Step 01</span>
-            <h3>Share your travel goals</h3>
-            <p class="trip-meta">Tell us where, when, and who is traveling. We will capture preferences and comfort needs.</p>
-          </div>
-          <div class="step reveal">
-            <span>Step 02</span>
-            <h3>Receive a curated plan</h3>
-            <p class="trip-meta">We send you a clear itinerary, inclusions, exclusions, and a transparent price breakdown.</p>
-          </div>
-          <div class="step reveal">
-            <span>Step 03</span>
-            <h3>Travel with support</h3>
-            <p class="trip-meta">Dedicated coordinators stay available before and during the trip for quick updates.</p>
-          </div>
-        </div>
+        <div class="steps" id="stepsList"></div>
       </div>
     </section>
 
@@ -155,24 +122,11 @@
       <div class="container">
         <div class="section-head reveal">
           <div>
-            <h2>Traveler stories</h2>
-            <p>Real feedback from families and professionals who chose Zentura for their stress-free travel.</p>
+            <h2 id="testimonialsTitle">Traveler stories</h2>
+            <p id="testimonialsDescription">Real feedback from families and professionals who chose Zentura for their stress-free travel.</p>
           </div>
         </div>
-        <div class="testimonial-grid">
-          <div class="testimonial reveal">
-            <p>"Zentura handled every approval for Lakshadweep and kept us calm even during flight delays."</p>
-            <strong>- Asha, Bengaluru</strong>
-          </div>
-          <div class="testimonial reveal">
-            <p>"We loved the daily check-ins and local guides. It felt personal and safe."</p>
-            <strong>- Rahul, Hyderabad</strong>
-          </div>
-          <div class="testimonial reveal">
-            <p>"The stay recommendations were perfect for our parents. Everything was pre-arranged."</p>
-            <strong>- Meera, Mumbai</strong>
-          </div>
-        </div>
+        <div class="testimonial-grid" id="testimonialsList"></div>
       </div>
     </section>
 
@@ -180,24 +134,11 @@
       <div class="container">
         <div class="section-head reveal">
           <div>
-            <h2>Support for existing clients</h2>
-            <p>Already traveling with Zentura? Get quick updates and connect with your trip coordinator instantly.</p>
+            <h2 id="supportTitle">Support for existing clients</h2>
+            <p id="supportDescription">Already traveling with Zentura? Get quick updates and connect with your trip coordinator instantly.</p>
           </div>
         </div>
-        <div class="feature-grid">
-          <div class="feature-card reveal">
-            <h3>Trip updates</h3>
-            <p class="trip-meta">Receive itinerary confirmations, transfer details, and day-wise reminders in one place.</p>
-          </div>
-          <div class="feature-card reveal">
-            <h3>Concierge hotline</h3>
-            <p class="trip-meta">A dedicated contact for urgent changes, weather alerts, or last-minute upgrades.</p>
-          </div>
-          <div class="feature-card reveal">
-            <h3>Partner network</h3>
-            <p class="trip-meta">Local hosts and drivers stay synced with your travel needs.</p>
-          </div>
-        </div>
+        <div class="feature-grid" id="supportList"></div>
       </div>
     </section>
 
@@ -205,13 +146,13 @@
       <div class="container">
         <div class="section-head reveal">
           <div>
-            <h2>Plan your next trip</h2>
-            <p>Tell us your preferred dates and comfort needs. We will respond with a curated plan and pricing.</p>
+            <h2 id="contactTitle">Plan your next trip</h2>
+            <p id="contactDescription">Tell us your preferred dates and comfort needs. We will respond with a curated plan and pricing.</p>
           </div>
         </div>
         <div class="contact-grid">
           <div class="contact-card reveal">
-            <h3>Trip inquiry</h3>
+            <h3 id="contactFormTitle">Trip inquiry</h3>
             <form id="contactForm">
               <div class="form-group">
                 <label for="name">Full name</label>
@@ -244,21 +185,21 @@
             </form>
           </div>
           <div class="contact-card reveal">
-            <h3>Reach Zentura directly</h3>
-            <p class="trip-meta">We answer quickly for new clients and returning clients who need updates.</p>
+            <h3 id="contactDirectTitle">Reach Zentura directly</h3>
+            <p id="contactDirectDescription" class="trip-meta">We answer quickly for new clients and returning clients who need updates.</p>
             <div class="form-group">
-              <strong>Phone</strong>
-              <p class="trip-meta">+91 90000 00000</p>
+              <strong id="contactPhoneLabel">Phone</strong>
+              <p id="contactPhone" class="trip-meta">+91 00000 00000</p>
             </div>
             <div class="form-group">
-              <strong>Email</strong>
-              <p class="trip-meta">hello@zentura.travel</p>
+              <strong id="contactEmailLabel">Email</strong>
+              <p id="contactEmail" class="trip-meta">hello@yourdomain.com</p>
             </div>
             <div class="form-group">
-              <strong>Office</strong>
-              <p class="trip-meta">Bengaluru, India</p>
+              <strong id="contactOfficeLabel">Office</strong>
+              <p id="contactOffice" class="trip-meta">Bengaluru, India</p>
             </div>
-            <div class="notice">Admin can manage inquiries, trips, and images from the admin dashboard.</div>
+            <div id="contactNote" class="notice">Admin can manage inquiries, trips, and images from the admin dashboard.</div>
           </div>
         </div>
       </div>
@@ -272,24 +213,24 @@
           <img src="assets/zentura-logo.svg" alt="Zentura logo" />
           <span>Zentura</span>
         </div>
-        <small>Travel with comfort, guided by trust. We are ready to launch on your existing domain.</small>
+        <small id="footerTagline">Travel with comfort, guided by trust. We are ready to launch on your existing domain.</small>
       </div>
       <div>
-        <strong>Quick links</strong>
+        <strong id="footerQuickLinks">Quick links</strong>
         <p class="trip-meta"><a href="#packages">Packages</a></p>
         <p class="trip-meta"><a href="#contact">Contact</a></p>
         <p class="trip-meta"><a href="admin.html">Admin login</a></p>
       </div>
       <div>
-        <strong>Client support</strong>
-        <p class="trip-meta">24/7 coordinator access</p>
-        <p class="trip-meta">Custom itinerary updates</p>
-        <p class="trip-meta">Local assistance on-site</p>
+        <strong id="footerSupport">Client support</strong>
+        <div id="footerSupportList"></div>
       </div>
     </div>
   </footer>
 
-  <script src="data.js" defer></script>
-  <script src="app.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js?v=3"></script>
+  <script src="data.js?v=3" defer></script>
+  <script src="app.js?v=3" defer></script>
 </body>
 </html>

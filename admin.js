@@ -1,317 +1,347 @@
-const SESSION_KEY = "zentura_admin_session";
+/**
+ * ZENTURA ADMIN MASTER CONTROLLER
+ */
 
-const getSession = () => {
-  const raw = localStorage.getItem(SESSION_KEY);
-  if (!raw) {
-    return null;
-  }
-  try {
-    return JSON.parse(raw);
-  } catch (error) {
-    return null;
-  }
-};
+const adminConfig = window.ZenturaConfig || {};
+const loginDomain = adminConfig.loginDomain || "yourdomain.com";
 
-const setSession = (username) => {
-  localStorage.setItem(
-    SESSION_KEY,
-    JSON.stringify({ username, createdAt: new Date().toISOString() })
-  );
-};
-
-const clearSession = () => {
-  localStorage.removeItem(SESSION_KEY);
-};
-
-const showView = (isLoggedIn, username = "") => {
+/**
+ * 1. UI MANAGER
+ * Handles smooth transitions between views
+ */
+const updateAdminUI = (isLoggedIn, username = "") => {
   const loginView = document.getElementById("loginView");
   const adminView = document.getElementById("adminView");
   const adminName = document.getElementById("adminName");
 
-  if (!loginView || !adminView || !adminName) {
-    return;
-  }
-
-  loginView.hidden = isLoggedIn;
-  adminView.hidden = !isLoggedIn;
-  adminName.textContent = username;
-};
-
-const parseList = (value) => {
-  if (!value) {
-    return [];
-  }
-  return value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-};
-
-const resetTripForm = () => {
-  const form = document.getElementById("tripForm");
-  if (!form) {
-    return;
-  }
-  form.reset();
-  document.getElementById("tripId").value = "";
-};
-
-const fillTripForm = (trip) => {
-  document.getElementById("tripId").value = trip.id;
-  document.getElementById("tripTitle").value = trip.title;
-  document.getElementById("tripLocation").value = trip.location;
-  document.getElementById("tripDuration").value = trip.duration;
-  document.getElementById("tripPrice").value = trip.price;
-  document.getElementById("tripImage").value = trip.image || "";
-  document.getElementById("tripDescription").value = trip.description;
-  document.getElementById("tripHighlights").value = (trip.highlights || []).join(", ");
-  document.getElementById("tripInclusions").value = (trip.inclusions || []).join(", ");
-  document.getElementById("tripExclusions").value = (trip.exclusions || []).join(", ");
-  document.getElementById("tripFeatured").checked = Boolean(trip.featured);
-};
-
-const renderTripsTable = () => {
-  const tbody = document.querySelector("#tripsTable tbody");
-  if (!tbody) {
-    return;
-  }
-  const trips = ZenturaData.loadTrips();
-  tbody.innerHTML = "";
-
-  trips.forEach((trip) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>
-        <strong>${trip.title}</strong>
-        <div class="trip-meta">${trip.location}</div>
-      </td>
-      <td>${ZenturaData.formatPrice(trip.price, trip.currency)}</td>
-      <td>${trip.featured ? "Yes" : "No"}</td>
-      <td>
-        <button class="btn btn-ghost" data-action="edit" data-id="${trip.id}">Edit</button>
-        <button class="btn btn-ghost" data-action="delete" data-id="${trip.id}">Delete</button>
-      </td>
-    `;
-    tbody.appendChild(row);
-  });
-};
-
-const sanitizePhone = (value) => {
-  if (!value) {
-    return "";
-  }
-  return value.replace(/\D/g, "");
-};
-
-const renderMessagesTable = () => {
-  const tbody = document.querySelector("#messagesTable tbody");
-  if (!tbody) {
-    return;
-  }
-
-  const messages = ZenturaData.loadMessages();
-  tbody.innerHTML = "";
-
-  if (messages.length === 0) {
-    const row = document.createElement("tr");
-    row.innerHTML = `<td colspan="4">No inquiries yet.</td>`;
-    tbody.appendChild(row);
-    return;
-  }
-
-  messages.forEach((message) => {
-    const row = document.createElement("tr");
-    const phone = sanitizePhone(message.phone || "");
-    const mailLink = message.email
-      ? `<a href="mailto:${message.email}">Email</a>`
-      : "";
-    const whatsappLink = phone
-      ? `<a href="https://wa.me/${phone}" target="_blank" rel="noreferrer">WhatsApp</a>`
-      : "";
-    const contactLinks = [mailLink, whatsappLink].filter(Boolean).join(" | ");
-
-    row.innerHTML = `
-      <td>
-        <strong>${message.name || "Unknown"}</strong>
-        <div class="trip-meta">${message.month || ""}</div>
-      </td>
-      <td>${message.trip || "Custom"}</td>
-      <td>${contactLinks || "-"}</td>
-      <td>
-        <span class="status-dot ${message.status === "resolved" ? "is-active" : ""}"></span>
-        <button class="btn btn-ghost" data-action="toggle" data-id="${message.id}">
-          ${message.status === "resolved" ? "Contacted" : "New"}
-        </button>
-      </td>
-    `;
-    tbody.appendChild(row);
-  });
-};
-
-const setupTripForm = () => {
-  const form = document.getElementById("tripForm");
-  const status = document.getElementById("tripStatus");
-  const cancel = document.getElementById("cancelEdit");
-  if (!form || !status || !cancel) {
-    return;
-  }
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const trips = ZenturaData.loadTrips();
-    const id = document.getElementById("tripId").value || ZenturaData.generateId();
-
-    const trip = {
-      id,
-      title: document.getElementById("tripTitle").value.trim(),
-      location: document.getElementById("tripLocation").value.trim(),
-      duration: document.getElementById("tripDuration").value.trim(),
-      price: Number(document.getElementById("tripPrice").value || 0),
-      currency: "INR",
-      image: document.getElementById("tripImage").value.trim(),
-      description: document.getElementById("tripDescription").value.trim(),
-      highlights: parseList(document.getElementById("tripHighlights").value),
-      inclusions: parseList(document.getElementById("tripInclusions").value),
-      exclusions: parseList(document.getElementById("tripExclusions").value),
-      featured: document.getElementById("tripFeatured").checked,
-    };
-
-    const existingIndex = trips.findIndex((item) => item.id === id);
-    if (existingIndex >= 0) {
-      trips[existingIndex] = trip;
-      status.textContent = "Trip updated.";
-    } else {
-      trips.unshift(trip);
-      status.textContent = "Trip added.";
-    }
-
-    ZenturaData.saveTrips(trips);
-    renderTripsTable();
-    resetTripForm();
-  });
-
-  cancel.addEventListener("click", () => {
-    resetTripForm();
-    status.textContent = "Edit canceled.";
-  });
-};
-
-const setupTables = () => {
-  const tripsTable = document.getElementById("tripsTable");
-  const messagesTable = document.getElementById("messagesTable");
-
-  if (tripsTable) {
-    tripsTable.addEventListener("click", (event) => {
-      const button = event.target.closest("button");
-      if (!button) {
-        return;
-      }
-      const action = button.dataset.action;
-      const id = button.dataset.id;
-      const trips = ZenturaData.loadTrips();
-      const trip = trips.find((item) => item.id === id);
-
-      if (action === "edit" && trip) {
-        fillTripForm(trip);
-      }
-      if (action === "delete" && trip) {
-        const confirmed = window.confirm(`Delete ${trip.title}?`);
-        if (confirmed) {
-          ZenturaData.saveTrips(trips.filter((item) => item.id !== id));
-          renderTripsTable();
-        }
-      }
-    });
-  }
-
-  if (messagesTable) {
-    messagesTable.addEventListener("click", (event) => {
-      const button = event.target.closest("button");
-      if (!button || button.dataset.action !== "toggle") {
-        return;
-      }
-      const id = button.dataset.id;
-      const messages = ZenturaData.loadMessages();
-      const message = messages.find((item) => item.id === id);
-      if (message) {
-        message.status = message.status === "resolved" ? "new" : "resolved";
-        ZenturaData.saveMessages(messages);
-        renderMessagesTable();
-      }
-    });
-  }
-};
-
-const setupAdminSettings = () => {
-  const form = document.getElementById("adminSettings");
-  const status = document.getElementById("settingsStatus");
-  if (!form || !status) {
-    return;
-  }
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const current = ZenturaData.getAdminCredentials();
-    const newUser = document.getElementById("newUser").value.trim();
-    const newPass = document.getElementById("newPass").value.trim();
-
-    const updated = {
-      username: newUser || current.username,
-      password: newPass || current.password,
-    };
-
-    ZenturaData.setAdminCredentials(updated);
-    status.textContent = "Credentials updated.";
-    form.reset();
-  });
-};
-
-const setupLogin = () => {
-  const form = document.getElementById("loginForm");
-  const status = document.getElementById("loginStatus");
-  const logout = document.getElementById("logoutBtn");
-
-  if (!form || !status || !logout) {
-    return;
-  }
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const username = document.getElementById("adminUser").value.trim();
-    const password = document.getElementById("adminPass").value.trim();
-    const credentials = ZenturaData.getAdminCredentials();
-
-    if (username === credentials.username && password === credentials.password) {
-      setSession(username);
-      showView(true, username);
-      renderTripsTable();
-      renderMessagesTable();
-      status.textContent = "";
-      form.reset();
-    } else {
-      status.textContent = "Invalid login. Try again.";
-    }
-  });
-
-  logout.addEventListener("click", () => {
-    clearSession();
-    showView(false);
-  });
-};
-
-document.addEventListener("DOMContentLoaded", () => {
-  ZenturaData.seedStorage();
-  setupLogin();
-  setupTripForm();
-  setupTables();
-  setupAdminSettings();
-
-  const session = getSession();
-  if (session) {
-    showView(true, session.username);
-    renderTripsTable();
-    renderMessagesTable();
+  if (isLoggedIn) {
+    loginView.setAttribute("hidden", "true");
+    loginView.style.display = "none";
+    adminView.removeAttribute("hidden");
+    adminView.style.display = "grid";
+    adminName.textContent = username;
   } else {
-    showView(false);
+    loginView.removeAttribute("hidden");
+    loginView.style.display = "block";
+    adminView.setAttribute("hidden", "true");
+    adminView.style.display = "none";
+    adminName.textContent = "-";
   }
+};
+
+/**
+ * 2. AUTHENTICATION OBSERVER
+ * The single source of truth for auth state
+ */
+const initAuthObserver = () => {
+  ZenturaData.onAuthChange(async (event, session) => {
+    console.log(`[Auth Event]: ${event}`);
+
+    if (session?.user) {
+      try {
+        // Double check admin table for authorization
+        const { isAdmin, error } = await ZenturaData.checkAdminAccess(
+          session.user.id
+        );
+
+        if (error || !isAdmin) throw new Error("Unauthorized");
+
+        const userLabel = session.user.email.split("@")[0];
+        updateAdminUI(true, userLabel);
+
+        // Only load data AFTER auth is confirmed
+        refreshDashboard();
+
+      } catch (err) {
+        console.error("Access blocked:", err);
+        document.getElementById("loginStatus").textContent = "Access denied. Admins only.";
+        executeSignOut(); // Nuke session if unauthorized
+      }
+    } else {
+      updateAdminUI(false);
+    }
+  });
+};
+
+/**
+ * 3. FAIL-SAFE LOGOUT logic
+ */
+const executeSignOut = async () => {
+  const btn = document.getElementById("logoutBtn");
+  if (btn) {
+    btn.textContent = "Signing out...";
+    btn.disabled = true;
+  }
+
+  try {
+    // 1. Clear server-side session
+    await ZenturaData.signOut();
+  } catch (err) {
+    console.warn("SignOut request failed, forcing local cleanup.");
+  } finally {
+    // 2. Clear all local traces (The "Force" part done professionally)
+    ZenturaData.clearAuthSession();
+    localStorage.clear();
+
+    // 3. UI Update and Hard Refresh to clear memory
+    updateAdminUI(false);
+    window.location.replace("admin.html");
+  }
+};
+
+/**
+ * 4. EVENT INITIALIZERS
+ */
+const setupAuthEvents = () => {
+  const loginForm = document.getElementById("loginForm");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const togglePass = document.getElementById("togglePassword");
+  const passInput = document.getElementById("adminPass");
+
+  // Login handler
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const loginStatus = document.getElementById("loginStatus");
+    const user = document.getElementById("adminUser").value.trim();
+    const pass = passInput.value.trim();
+    const email = user.includes("@") ? user : `${user}@${loginDomain}`;
+
+    loginStatus.textContent = "Authenticating...";
+    const { error } = await ZenturaData.signIn(email, pass);
+    if (error) loginStatus.textContent = error.message;
+  });
+
+  // Logout handler
+  logoutBtn.addEventListener("click", executeSignOut);
+
+  // Pass toggle
+  togglePass.addEventListener("click", () => {
+    const isPass = passInput.type === "password";
+    passInput.type = isPass ? "text" : "password";
+    togglePass.textContent = isPass ? "Hide" : "Show";
+  });
+};
+
+/**
+ * 5. DASHBOARD DATA REFRESH
+ */
+let currentSiteContent = {};
+
+const refreshDashboard = async () => {
+  try {
+    const { content } = await ZenturaData.fetchSiteContent();
+    if (content) {
+      currentSiteContent = content; // Store for updates
+
+      // Populate Hero Form
+      document.getElementById("heroBadgeInput").value = content.hero?.badge || "";
+      document.getElementById("heroTitleInput").value = content.hero?.title || "";
+      document.getElementById("heroDescriptionInput").value = content.hero?.description || "";
+
+      // Populate Contact Form
+      document.getElementById("contactPhoneInput").value = content.contact?.phone || "";
+      document.getElementById("contactEmailInput").value = content.contact?.email || "";
+      document.getElementById("contactOfficeInput").value = content.contact?.office || "";
+    }
+    await renderTrips();
+    await renderMessages();
+  } catch (err) {
+    console.error("Data load failed:", err);
+  }
+};
+
+const setupDashboardEvents = () => {
+  const siteForm = document.getElementById("siteForm");
+
+  if (siteForm) {
+    siteForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const statusMsg = document.getElementById("siteStatus");
+      statusMsg.textContent = "Saving changes...";
+      statusMsg.style.color = "blue";
+
+      // Update local state with form values
+      if (!currentSiteContent.hero) currentSiteContent.hero = {};
+      currentSiteContent.hero.badge = document.getElementById("heroBadgeInput").value;
+      currentSiteContent.hero.title = document.getElementById("heroTitleInput").value;
+      currentSiteContent.hero.description = document.getElementById("heroDescriptionInput").value;
+
+      if (!currentSiteContent.contact) currentSiteContent.contact = {};
+      currentSiteContent.contact.phone = document.getElementById("contactPhoneInput").value;
+      currentSiteContent.contact.email = document.getElementById("contactEmailInput").value;
+      currentSiteContent.contact.office = document.getElementById("contactOfficeInput").value;
+
+      try {
+        const { error } = await ZenturaData.saveSiteContent(currentSiteContent);
+        if (error) throw error;
+        statusMsg.textContent = "Changes saved successfully!";
+        statusMsg.style.color = "green";
+
+        // Clear success message after 3 seconds
+        setTimeout(() => { statusMsg.textContent = ""; }, 3000);
+      } catch (err) {
+        console.error("Save failed:", err);
+        statusMsg.textContent = "Failed to save changes. Try again.";
+        statusMsg.style.color = "red";
+      }
+    });
+  }
+};
+
+let currentTrips = [];
+
+const renderTrips = async () => {
+  const tbody = document.querySelector("#tripsTable tbody");
+  const { trips } = await ZenturaData.fetchTrips({ fallback: false });
+  currentTrips = trips; // Cache for editing
+
+  tbody.innerHTML = trips.map(t => `
+    <tr style="border-bottom: 1px solid #eee;">
+      <td style="padding:12px;"><strong>${t.title}</strong></td>
+      <td>₹${t.price}</td>
+      <td><span class="status-dot ${t.featured ? 'is-active' : ''}"></span>${t.featured ? 'Featured' : 'Standard'}</td>
+      <td>
+        <button class="btn btn-ghost" onclick="window.openTripEditor('${t.id}')">Edit</button>
+        <button class="btn btn-ghost" onclick="window.deleteTrip('${t.id}')" style="color: #dc2626;">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+};
+
+const setupTripEvents = () => {
+  const tripForm = document.getElementById("tripForm");
+  if (!tripForm) return;
+
+  tripForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = tripForm.querySelector("button[type='submit']");
+    const originalText = btn.textContent;
+    btn.textContent = "Saving...";
+    btn.disabled = true;
+
+    try {
+      const id = document.getElementById("tripId").value;
+      const imageFile = document.getElementById("tripImageFn").files[0];
+      let imageUrl = document.getElementById("tripImageUrl").value;
+
+      // Upload image if new file selected
+      if (imageFile) {
+        const { url, error } = await ZenturaData.uploadImage(imageFile);
+        if (error) throw error;
+        imageUrl = url;
+      }
+
+      const tripData = {
+        id, // Included for updates
+        title: document.getElementById("tripTitle").value,
+        location: document.getElementById("tripLocation").value,
+        duration: document.getElementById("tripDuration").value,
+        price: Number(document.getElementById("tripPrice").value),
+        description: document.getElementById("tripDesc").value,
+        image: imageUrl,
+        featured: document.getElementById("tripFeatured").checked,
+        highlights: [], // Simplified for now, can extend later
+        inclusions: [],
+        exclusions: []
+      };
+
+      let result;
+      if (id) {
+        result = await ZenturaData.updateTrip(tripData);
+      } else {
+        delete tripData.id;
+        result = await ZenturaData.createTrip(tripData);
+      }
+
+      if (result.error) throw result.error;
+
+      // Success
+      window.closeTripEditor();
+      refreshDashboard();
+      alert("Trip saved successfully!");
+
+    } catch (err) {
+      console.error("Trip save error:", err);
+      alert("Failed to save trip: " + err.message);
+    } finally {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  });
+};
+
+window.openTripEditor = (tripId = null) => {
+  const editor = document.getElementById("tripEditor");
+  const title = document.getElementById("tripEditorTitle");
+  const form = document.getElementById("tripForm");
+
+  form.reset();
+  editor.removeAttribute("hidden");
+
+  if (tripId) {
+    const trip = currentTrips.find(t => t.id === tripId);
+    if (!trip) return;
+
+    title.textContent = "Edit Trip";
+    document.getElementById("tripId").value = trip.id;
+    document.getElementById("tripTitle").value = trip.title;
+    document.getElementById("tripLocation").value = trip.location;
+    document.getElementById("tripDuration").value = trip.duration;
+    document.getElementById("tripPrice").value = trip.price;
+    document.getElementById("tripDesc").value = trip.description;
+    document.getElementById("tripImageUrl").value = trip.image || "";
+    document.getElementById("tripFeatured").checked = trip.featured;
+
+    const preview = document.getElementById("imagePreview");
+    preview.textContent = trip.image ? "Current image set. Upload new to replace." : "No image set.";
+  } else {
+    title.textContent = "Add New Trip";
+    document.getElementById("tripId").value = "";
+    document.getElementById("tripImageUrl").value = "";
+    document.getElementById("imagePreview").textContent = "";
+  }
+};
+
+window.closeTripEditor = () => {
+  document.getElementById("tripEditor").setAttribute("hidden", "true");
+};
+
+const renderMessages = async () => {
+  const tbody = document.querySelector("#messagesTable tbody");
+  const { messages } = await ZenturaData.fetchMessages();
+  if (messages.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="padding:20px; text-align:center;">No inquiries found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = messages.map(m => `
+    <tr style="border-bottom: 1px solid #eee;">
+      <td style="padding:12px;">${m.name}</td>
+      <td>${m.trip || 'Custom'}</td>
+      <td>${m.email || m.phone}</td>
+      <td><button class="btn btn-ghost" onclick="window.toggleMsg('${m.id}', '${m.status}')">${m.status === 'resolved' ? '✅' : 'Mark Seen'}</button></td>
+    </tr>
+  `).join('');
+};
+
+window.deleteTrip = async (id) => {
+  if (confirm("Delete this trip?")) {
+    await ZenturaData.deleteTrip(id);
+    refreshDashboard();
+  }
+};
+
+window.toggleMsg = async (id, status) => {
+  const next = status === 'resolved' ? 'new' : 'resolved';
+  await ZenturaData.updateMessageStatus(id, next);
+  renderMessages();
+};
+
+/**
+ * START
+ */
+document.addEventListener("DOMContentLoaded", () => {
+  initAuthObserver();
+  setupAuthEvents();
+  setupDashboardEvents();
+  setupTripEvents();
 });

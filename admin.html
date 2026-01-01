@@ -1,115 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zentura Admin</title>
+  <title>Zentura | Admin Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Professional Layout Overrides */
+    .admin-body {
+      background: #f8f9fa;
+      margin: 0;
+      font-family: 'Sora', sans-serif;
+    }
+
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 30px;
+      padding: 30px;
+      min-height: 100vh;
+    }
+
+    .admin-sidebar {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      height: fit-content;
+      position: sticky;
+      top: 30px;
+    }
+
+    .panel-card {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+    }
+
+    .status-dot {
+      height: 8px;
+      width: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 5px;
+      background: #ccc;
+    }
+
+    .status-dot.is-active {
+      background: #10b981;
+    }
+
+    .btn-danger {
+      background: #fee2e2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-danger:hover {
+      background: #fca5a5;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+  </style>
 </head>
+
 <body class="admin-body">
-  <header class="navbar">
-    <div class="container nav-inner">
-      <a class="brand" href="index.html">
-        <img src="assets/zentura-logo.svg" alt="Zentura logo" />
-        <span>Zentura Admin</span>
+  <header class="navbar" style="background: #fff; border-bottom: 1px solid #eee; padding: 15px 0;">
+    <div class="container nav-inner" style="display: flex; justify-content: space-between; align-items: center;">
+      <a class="brand" href="index.html"
+        style="text-decoration: none; color: #1a1a1a; font-weight: 600; font-size: 1.2rem;">
+        Zentura Admin
       </a>
-      <nav class="nav-links">
-        <a href="index.html">Back to site</a>
-      </nav>
+      <a href="index.html" class="btn btn-ghost">Back to Website</a>
     </div>
   </header>
 
-  <main class="section">
+  <main>
     <div class="container">
-      <div id="loginView" class="panel-card reveal">
-        <h2>Admin login</h2>
-        <p class="trip-meta">Sign in to manage trips, images, and client inquiries.</p>
+      <div id="loginView" class="panel-card" style="max-width: 450px; margin: 100px auto;">
+        <h2 style="margin-top:0;">Admin Login</h2>
+        <p style="color: #666; margin-bottom: 25px;">Please authenticate to access the control center.</p>
         <form id="loginForm">
           <div class="form-group">
-            <label for="adminUser">Username</label>
-            <input id="adminUser" type="text" required />
+            <label>Username / Email</label>
+            <input id="adminUser" type="text" placeholder="admin@zentura.com" required
+              style="width:100%; padding:10px; margin: 8px 0 20px; border:1px solid #ddd; border-radius:6px;" />
           </div>
           <div class="form-group">
-            <label for="adminPass">Password</label>
-            <input id="adminPass" type="password" required />
+            <label>Password</label>
+            <div style="position: relative;">
+              <input id="adminPass" type="password" required
+                style="width:100%; padding:10px; margin: 8px 0 20px; border:1px solid #ddd; border-radius:6px;" />
+              <button id="togglePassword" type="button" class="btn btn-ghost btn-small"
+                style="position:absolute; right:10px; top:12px; border:none; background:none;">Show</button>
+            </div>
           </div>
-          <button class="btn btn-primary" type="submit">Log in</button>
-          <p id="loginStatus" class="form-note"></p>
+          <button class="btn btn-primary" type="submit" style="width: 100%; padding: 12px; font-weight: 600;">Log
+            In</button>
+          <p id="loginStatus" class="form-note" style="margin-top: 15px; color: #dc2626;"></p>
         </form>
-        <div class="notice">Default login is stored locally. Update the password after first sign-in.</div>
       </div>
 
       <div id="adminView" class="admin-layout" hidden>
         <aside class="admin-sidebar">
-          <h2>Control center</h2>
-          <p class="trip-meta">Signed in as <span id="adminName"></span></p>
-          <button id="logoutBtn" class="btn btn-ghost">Log out</button>
-          <div class="notice" style="margin-top: 18px;">Use the forms to add new trips, update pricing, or manage inquiries.</div>
+          <h3 style="margin-top:0;">Control Center</h3>
+          <p style="font-size: 0.9rem; color: #666;">Signed in as:<br><strong id="adminName"
+              style="color: #1a1a1a;">-</strong></p>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+          <button id="logoutBtn" class="btn-danger" style="width: 100%;">Sign Out</button>
         </aside>
 
         <div class="admin-panel">
-          <section class="panel-card" id="tripManager">
-            <h3>Trip editor</h3>
-            <form id="tripForm">
-              <input type="hidden" id="tripId" />
-              <div class="form-group">
-                <label for="tripTitle">Trip name</label>
-                <input id="tripTitle" type="text" required />
+          <section class="panel-card" id="siteManager">
+            <h3 style="margin-top:0;">Site Content</h3>
+            <form id="siteForm">
+              <div class="admin-section">
+                <h4>Hero Banner</h4>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                  <div class="form-group"><label>Badge</label><input id="heroBadgeInput" type="text" /></div>
+                  <div class="form-group"><label>Headline</label><input id="heroTitleInput" type="text" /></div>
+                </div>
+                <div class="form-group" style="margin-top:15px;"><label>Description</label><textarea
+                    id="heroDescriptionInput"></textarea></div>
               </div>
-              <div class="form-group">
-                <label for="tripLocation">Location</label>
-                <input id="tripLocation" type="text" required />
+
+              <div class="admin-section" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                <h4>Contact Details</h4>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                  <div class="form-group"><label>Phone Number</label><input id="contactPhoneInput" type="text" /></div>
+                  <div class="form-group"><label>Email Address</label><input id="contactEmailInput" type="text" /></div>
+                </div>
+                <div class="form-group" style="margin-top:15px;"><label>Office Location</label><input
+                    id="contactOfficeInput" type="text" /></div>
               </div>
-              <div class="form-group">
-                <label for="tripDuration">Duration</label>
-                <input id="tripDuration" type="text" placeholder="4 Days / 3 Nights" required />
-              </div>
-              <div class="form-group">
-                <label for="tripPrice">Starting price (INR)</label>
-                <input id="tripPrice" type="number" min="0" step="500" required />
-              </div>
-              <div class="form-group">
-                <label for="tripImage">Image URL</label>
-                <input id="tripImage" type="text" placeholder="assets/trip-lakshadweep.svg" />
-              </div>
-              <div class="form-group">
-                <label for="tripDescription">Short description</label>
-                <textarea id="tripDescription" required></textarea>
-              </div>
-              <div class="form-group">
-                <label for="tripHighlights">Highlights (comma separated)</label>
-                <input id="tripHighlights" type="text" />
-              </div>
-              <div class="form-group">
-                <label for="tripInclusions">Inclusions (comma separated)</label>
-                <input id="tripInclusions" type="text" />
-              </div>
-              <div class="form-group">
-                <label for="tripExclusions">Exclusions (comma separated)</label>
-                <input id="tripExclusions" type="text" />
-              </div>
-              <div class="form-group">
-                <label>
-                  <input id="tripFeatured" type="checkbox" /> Feature this trip
-                </label>
-              </div>
-              <button class="btn btn-primary" type="submit">Save trip</button>
-              <button class="btn btn-ghost" id="cancelEdit" type="button">Cancel edit</button>
-              <p id="tripStatus" class="form-note"></p>
+              <button class="btn btn-primary" type="submit" style="margin-top:20px;">Save Changes</button>
+              <p id="siteStatus" class="form-note"></p>
             </form>
           </section>
 
           <section class="panel-card">
-            <h3>Trips overview</h3>
-            <table class="table" id="tripsTable">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 style="margin:0;">Active Trips</h3>
+              <div>
+                <span id="tripStatus" class="form-note" style="margin-right: 10px;"></span>
+                <button class="btn btn-primary" onclick="window.openTripEditor()">+ Add Trip</button>
+              </div>
+            </div>
+
+            <!-- Trip Editor Form (Hidden by default) -->
+            <div id="tripEditor"
+              style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px; border: 1px solid #eee;"
+              hidden>
+              <h4 style="margin-top:0;" id="tripEditorTitle">Add New Trip</h4>
+              <form id="tripForm">
+                <input type="hidden" id="tripId" />
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                  <div class="form-group"><label>Trip Title</label><input required id="tripTitle" type="text"
+                      style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
+                  <div class="form-group"><label>Location</label><input required id="tripLocation" type="text"
+                      style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
+                  <div class="form-group"><label>Duration</label><input required id="tripDuration" type="text"
+                      placeholder="e.g. 3 Days / 2 Nights"
+                      style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
+                  <div class="form-group"><label>Price (INR)</label><input required id="tripPrice" type="number"
+                      style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" /></div>
+                </div>
+
+                <div class="form-group" style="margin-top:15px;"><label>Description</label><textarea required
+                    id="tripDesc"
+                    style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; min-height: 80px;"></textarea>
+                </div>
+
+                <div style="margin-top:15px;">
+                  <label>Trip Image</label>
+                  <input type="file" id="tripImageFn" accept="image/*" style="margin-top:5px;" />
+                  <input type="hidden" id="tripImageUrl" />
+                  <p id="imagePreview" style="font-size: 0.8rem; color: #666; margin-top: 5px;"></p>
+                </div>
+
+                <div style="margin-top:15px;">
+                  <label style="display:flex; align-items:center; gap: 10px;">
+                    <input type="checkbox" id="tripFeatured" />
+                    <strong>Mark as Featured?</strong>
+                  </label>
+                </div>
+
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                  <button type="submit" class="btn btn-primary">Save Trip</button>
+                  <button type="button" class="btn btn-ghost" onclick="window.closeTripEditor()">Cancel</button>
+                </div>
+              </form>
+            </div>
+
+            <table class="table" id="tripsTable" style="width:100%; border-collapse: collapse; margin-top:20px;">
               <thead>
-                <tr>
-                  <th>Trip</th>
+                <tr style="text-align:left; border-bottom: 2px solid #eee;">
+                  <th style="padding:10px;">Trip Name</th>
                   <th>Price</th>
-                  <th>Featured</th>
+                  <th>Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -118,41 +218,28 @@
           </section>
 
           <section class="panel-card">
-            <h3>Client inquiries</h3>
-            <table class="table" id="messagesTable">
+            <h3 style="margin-top:0;">Client Inquiries</h3>
+            <table class="table" id="messagesTable" style="width:100%; border-collapse: collapse; margin-top:20px;">
               <thead>
-                <tr>
-                  <th>Client</th>
+                <tr style="text-align:left; border-bottom: 2px solid #eee;">
+                  <th style="padding:10px;">Client</th>
                   <th>Trip</th>
                   <th>Contact</th>
-                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody></tbody>
             </table>
-          </section>
-
-          <section class="panel-card">
-            <h3>Admin settings</h3>
-            <form id="adminSettings">
-              <div class="form-group">
-                <label for="newUser">New username</label>
-                <input id="newUser" type="text" placeholder="Leave blank to keep" />
-              </div>
-              <div class="form-group">
-                <label for="newPass">New password</label>
-                <input id="newPass" type="password" placeholder="Leave blank to keep" />
-              </div>
-              <button class="btn btn-ghost" type="submit">Update credentials</button>
-              <p id="settingsStatus" class="form-note"></p>
-            </form>
           </section>
         </div>
       </div>
     </div>
   </main>
 
-  <script src="data.js" defer></script>
-  <script src="admin.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="data.js"></script>
+  <script src="admin.js"></script>
 </body>
+
 </html>
