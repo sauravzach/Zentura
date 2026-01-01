@@ -116,6 +116,10 @@ a {
 .brand img {
   width: 42px;
   height: 42px;
+  border-radius: 50%;
+  padding: 4px;
+  background-color: var(--orange-700);
+  object-fit: contain;
 }
 
 .nav-links {
@@ -677,9 +681,12 @@ textarea {
 }
 
 @keyframes drift {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(18px);
   }
@@ -690,6 +697,7 @@ textarea {
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
