@@ -169,6 +169,7 @@ const refreshDashboard = async () => {
       document.getElementById("heroBadgeInput").value = content.hero?.badge || "";
       document.getElementById("heroTitleInput").value = content.hero?.title || "";
       document.getElementById("heroDescriptionInput").value = content.hero?.description || "";
+      document.getElementById("heroFeaturedTagInput").value = content.hero?.featuredTagDefault || "All permits handled";
 
       // 2. Stats
       (content.stats || []).forEach((s, i) => {
@@ -243,6 +244,7 @@ const setupDashboardEvents = () => {
       updated.hero.badge = document.getElementById("heroBadgeInput").value;
       updated.hero.title = document.getElementById("heroTitleInput").value;
       updated.hero.description = document.getElementById("heroDescriptionInput").value;
+      updated.hero.featuredTagDefault = document.getElementById("heroFeaturedTagInput").value;
 
       // Stats
       updated.stats = [0, 1, 2].map(i => ({
@@ -436,11 +438,22 @@ const renderMessages = async () => {
     return;
   }
   tbody.innerHTML = messages.map(m => `
-    <tr style="border-bottom: 1px solid #eee;">
-      <td style="padding:12px;">${m.name}</td>
+    <tr style="border-bottom: 1px solid #eee; font-size: 0.85rem;">
+      <td style="padding:12px;"><strong>${m.name}</strong></td>
+      <td>
+        <div style="font-size: 0.8rem;">${m.email}</div>
+        <div style="font-size: 0.8rem; color: #666;">${m.phone || 'No phone'}</div>
+      </td>
       <td>${m.trip || 'Custom'}</td>
-      <td>${m.email || m.phone}</td>
-      <td><button class="btn btn-ghost" onclick="window.toggleMsg('${m.id}', '${m.status}')">${m.status === 'resolved' ? '✅' : 'Mark Seen'}</button></td>
+      <td>${m.month || '-'}</td>
+      <td style="max-width: 250px; overflow-wrap: break-word; color: #444; font-style: italic;">
+        ${m.message || '-'}
+      </td>
+      <td>
+        <button class="btn btn-ghost" onclick="window.toggleMsg('${m.id}', '${m.status}')">
+          ${m.status === 'resolved' ? '✅ Resolved' : 'Mark Seen'}
+        </button>
+      </td>
     </tr>
   `).join('');
 };

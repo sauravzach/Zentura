@@ -240,22 +240,79 @@ const renderContentLists = (content, observe) => {
   observe([...whyNodes, ...stepNodes, ...testimonialNodes, ...supportNodes]);
 };
 
-const updateFeaturedTrip = (trips, content) => {
-  const featured = trips.find((trip) => trip.featured) || trips[0];
-  if (!featured) {
-    return;
+const renderFeaturedSlider = (trips, content) => {
+  const container = document.getElementById("featuredSlider");
+  const dotsContainer = document.getElementById("sliderDots");
+  if (!container || !dotsContainer) return;
+
+  const featuredTrips = trips.filter(t => t.featured);
+  const displayTrips = featuredTrips.length > 0 ? featuredTrips : [trips[0]];
+
+  if (displayTrips.length === 0) return;
+
+  container.innerHTML = "";
+  dotsContainer.innerHTML = "";
+
+  const defaultTag = content.hero?.featuredTagDefault || "All permits handled";
+  const labelCta = content.hero?.featuredCta || "Reserve now";
+
+  displayTrips.forEach((trip, i) => {
+    const slide = document.createElement("div");
+    slide.className = `hero-card fade-in ${i === 0 ? "active" : ""}`;
+    slide.style.display = i === 0 ? "block" : "none";
+    slide.style.position = "relative";
+    slide.style.left = "0";
+    slide.style.right = "0";
+    slide.style.bottom = "0";
+
+    const tag = (trip.inclusions && trip.inclusions[0]) || defaultTag;
+
+    slide.innerHTML = `
+      <span class="badge">${escapeHTML(content.hero.featuredLabel)}</span>
+      <h3>${escapeHTML(trip.title)}</h3>
+      <p class="trip-meta">${escapeHTML(trip.duration)} | Starting at ${ZenturaData.formatPrice(trip.price, trip.currency)}</p>
+      <div class="trip-actions">
+        <span class="label">${escapeHTML(tag)}</span>
+        <a class="btn btn-primary" href="#contact" data-trip-pick="${escapeHTML(trip.title)}">${escapeHTML(labelCta)}</a>
+      </div>
+    `;
+    container.appendChild(slide);
+
+    const dot = document.createElement("div");
+    dot.className = `slider-dot ${i === 0 ? "is-active" : ""}`;
+    dot.addEventListener("click", () => goToSlide(i));
+    dotsContainer.appendChild(dot);
+  });
+
+  let currentIndex = 0;
+  const slides = container.querySelectorAll(".hero-card");
+  const dots = dotsContainer.querySelectorAll(".slider-dot");
+
+  const goToSlide = (index) => {
+    slides[currentIndex].style.display = "none";
+    dots[currentIndex].classList.remove("is-active");
+
+    currentIndex = (index + slides.length) % slides.length;
+
+    slides[currentIndex].style.display = "block";
+    dots[currentIndex].classList.add("is-active");
+  };
+
+  document.getElementById("prevFeatured")?.addEventListener("click", () => goToSlide(currentIndex - 1));
+  document.getElementById("nextFeatured")?.addEventListener("click", () => goToSlide(currentIndex + 1));
+
+  // Auto-scroll every 5 seconds
+  if (displayTrips.length > 1) {
+    setInterval(() => goToSlide(currentIndex + 1), 5000);
   }
 
-  setText("featuredBadge", content.hero.featuredLabel);
-  setText("featuredTitle", featured.title);
-  setText(
-    "featuredMeta",
-    `${featured.duration} | Starting at ${ZenturaData.formatPrice(featured.price, featured.currency)}`
-  );
-
-  const tag = (featured.inclusions && featured.inclusions[0]) || "All permits handled";
-  setText("featuredTag", tag);
-  setText("featuredCta", content.hero.featuredCta);
+  // Handle CTA clicks within slider
+  container.querySelectorAll("[data-trip-pick]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const select = document.getElementById("trip");
+      if (select) select.value = btn.dataset.tripPick;
+    });
+  });
 };
 
 const setupContactForm = () => {
@@ -320,7 +377,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderContentLists(content, observe);
   renderTrips(trips, content, observe);
   populateTripSelect(trips);
-  updateFeaturedTrip(trips, content);
+  renderFeaturedSlider(trips, content);
   setupContactForm();
   setupNavToggle();
 });

@@ -61,7 +61,7 @@
           </div>
         </div>
         <div class="hero-art reveal">
-          <svg viewBox="0 0 360 360" aria-hidden="true">
+          <svg viewBox="0 0 360 360" aria-hidden="true" style="position: absolute; z-index: -1;">
             <defs>
               <linearGradient id="heroSun" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0" stop-color="#FFD97A" />
@@ -71,17 +71,16 @@
             <circle cx="200" cy="140" r="70" fill="url(#heroSun)" />
             <path d="M20 240c50-20 90-20 140 0s90 20 140 0 90-20 160 0v120H20z" fill="#2E8A86" opacity="0.6" />
             <path d="M20 270c50-15 90-15 140 0s90 15 140 0 90-15 160 0v90H20z" fill="#1F6E6A" opacity="0.7" />
-            <path d="M110 210l20 60 60-40" fill="none" stroke="#FFF3E6" stroke-width="6" stroke-linecap="round"
-              stroke-linejoin="round" />
-            <circle cx="120" cy="210" r="24" fill="#FFD24A" />
           </svg>
-          <div class="hero-card fade-in">
-            <span class="badge" id="featuredBadge">Featured this month</span>
-            <h3 id="featuredTitle">Lakshadweep escape</h3>
-            <p id="featuredMeta" class="trip-meta">4 Days / 3 Nights | Starting at INR 16,000</p>
-            <div class="trip-actions">
-              <span class="label" id="featuredTag">All permits handled</span>
-              <a class="btn btn-primary" id="featuredCta" href="#contact">Reserve now</a>
+
+          <div class="slider-wrapper">
+            <div id="featuredSlider" class="slider-container">
+              <!-- Featured trips will be injected here -->
+            </div>
+            <div class="slider-nav">
+              <button id="prevFeatured" class="btn btn-ghost btn-small">&lt;</button>
+              <div id="sliderDots" class="slider-dots"></div>
+              <button id="nextFeatured" class="btn btn-ghost btn-small">&gt;</button>
             </div>
           </div>
         </div>
